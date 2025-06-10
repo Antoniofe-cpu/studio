@@ -1,113 +1,82 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { WatchDeal } from '@/lib/types';
 import { WatchCard } from '@/components/watch-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Filter, ListRestart, Search } from 'lucide-react';
-
-// Mock data - in a real app, this would come from an API or database
-const mockDeals: WatchDeal[] = [
-  {
-    id: '1',
-    imageUrl: 'https://placehold.co/600x450.png?a=1',
-    brand: 'Rolex',
-    model: 'Submariner Date',
-    referenceNumber: '126610LN',
-    listingPrice: 13500,
-    marketPrice: 14000,
-    retailPrice: 9550,
-    estimatedMarginPercent: 15.5, // Assuming calculated (Listing - Cost) / Cost
-    aiScore: 88,
-    dealLabel: '🔥 Affare',
-    tags: ['#Popular', '#InvestmentGrade'],
-    sourceUrl: '#',
-    description: 'Mint condition, full set.',
-    condition: 'Mint',
-    demand: 'High',
-    rarity: 'Uncommon',
-    risk: 'Low',
-    lastUpdated: '2024-07-28T10:00:00Z',
-  },
-  {
-    id: '2',
-    imageUrl: 'https://placehold.co/600x450.png?a=2',
-    brand: 'Omega',
-    model: 'Speedmaster Professional',
-    referenceNumber: '310.30.42.50.01.001',
-    listingPrice: 6800,
-    marketPrice: 6500,
-    retailPrice: 7200,
-    estimatedMarginPercent: 8.2,
-    aiScore: 75,
-    dealLabel: '👍 OK',
-    tags: ['#Iconic', '#Chronograph'],
-    sourceUrl: '#',
-    lastUpdated: '2024-07-28T09:30:00Z',
-  },
-  {
-    id: '3',
-    imageUrl: 'https://placehold.co/600x450.png?a=3',
-    brand: 'Patek Philippe',
-    model: 'Nautilus',
-    referenceNumber: '5711/1A-010',
-    listingPrice: 120000,
-    marketPrice: 110000,
-    retailPrice: 30000, // Example
-    estimatedMarginPercent: -5, // Example of overpriced
-    aiScore: 45,
-    dealLabel: '❌ Fuori Prezzo',
-    tags: ['#Discontinued', '#HolyGrail'],
-    sourceUrl: '#',
-    lastUpdated: '2024-07-27T15:00:00Z',
-  },
-   {
-    id: '4',
-    imageUrl: 'https://placehold.co/600x450.png?a=4',
-    brand: 'Audemars Piguet',
-    model: 'Royal Oak',
-    referenceNumber: '15500ST.OO.1220ST.03',
-    listingPrice: 45000,
-    marketPrice: 48000,
-    estimatedMarginPercent: 12.0,
-    aiScore: 92,
-    dealLabel: '🔥 Affare',
-    tags: ['#LuxurySport', '#GentaDesign'],
-    sourceUrl: '#',
-    lastUpdated: '2024-07-28T11:00:00Z',
-  },
-  {
-    id: '5',
-    imageUrl: 'https://placehold.co/600x450.png?a=5',
-    brand: 'Cartier',
-    model: 'Tank Must SolarBeat',
-    referenceNumber: 'WSTA0059',
-    listingPrice: 3200,
-    marketPrice: 3000,
-    estimatedMarginPercent: 5.0,
-    aiScore: 68,
-    dealLabel: '👍 OK',
-    tags: ['#EcoFriendly', '#Elegant'],
-    sourceUrl: '#',
-    lastUpdated: '2024-07-28T08:00:00Z',
-  },
-];
-
+import { Filter, ListRestart, Search, Loader2, AlertTriangle } from 'lucide-react';
+import { getWatchDealsFromFirestore } from '@/lib/firebase/firestore-service'; // Import the new service
 
 export default function HomePage() {
+  const [allDeals, setAllDeals] = useState<WatchDeal[]>([]);
+  const [filteredDeals, setFilteredDeals] = useState<WatchDeal[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('aiScore');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredDeals = mockDeals.filter(deal => {
-    const term = searchTerm.toLowerCase();
-    return (
-      deal.brand.toLowerCase().includes(term) ||
-      deal.model.toLowerCase().includes(term) ||
-      deal.referenceNumber.toLowerCase().includes(term)
-    );
-  });
+  useEffect(() => {
+    const fetchDeals = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const deals = await getWatchDealsFromFirestore();
+        setAllDeals(deals);
+        setFilteredDeals(deals); // Initially, filtered deals are all deals
+      } catch (err) {
+        console.error("Failed to fetch deals:", err);
+        setError("Impossibile caricare gli affari. Riprova più tardi.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDeals();
+  }, []);
+
+  useEffect(() => {
+    let currentDeals = [...allDeals];
+
+    // Filtering
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      currentDeals = currentDeals.filter(deal =>
+        deal.brand.toLowerCase().includes(term) ||
+        deal.model.toLowerCase().includes(term) ||
+        deal.referenceNumber.toLowerCase().includes(term)
+      );
+    }
+
+    // Sorting
+    switch (sortBy) {
+      case 'aiScore':
+        currentDeals.sort((a, b) => b.aiScore - a.aiScore);
+        break;
+      case 'margin':
+        currentDeals.sort((a, b) => b.estimatedMarginPercent - a.estimatedMarginPercent);
+        break;
+      case 'date':
+        currentDeals.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
+        break;
+      case 'priceAsc':
+        currentDeals.sort((a, b) => a.listingPrice - b.listingPrice);
+        break;
+      case 'priceDesc':
+        currentDeals.sort((a, b) => b.listingPrice - a.listingPrice);
+        break;
+      default:
+        break;
+    }
+    setFilteredDeals(currentDeals);
+  }, [searchTerm, sortBy, allDeals]);
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSortBy('aiScore');
+    setFilteredDeals(allDeals);
+  };
 
   return (
     <div className="space-y-8">
@@ -131,7 +100,7 @@ export default function HomePage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Select defaultValue="aiScore">
+            <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -143,17 +112,28 @@ export default function HomePage() {
                 <SelectItem value="priceDesc">Price: High to Low</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" /> Filters
+            <Button variant="outline" disabled> {/* Filter button can be enabled later */}
+              <Filter className="mr-2 h-4 w-4" /> Filters 
             </Button>
-             <Button variant="ghost" size="icon" onClick={() => setSearchTerm('')}>
+             <Button variant="ghost" size="icon" onClick={resetFilters}>
               <ListRestart className="h-5 w-5" />
               <span className="sr-only">Reset Filters</span>
             </Button>
           </div>
         </div>
         
-        {filteredDeals.length > 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p>Caricamento degli affari...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-10 text-destructive">
+            <AlertTriangle className="h-12 w-12 mb-4" />
+            <p className="text-lg font-semibold">Errore nel caricamento</p>
+            <p>{error}</p>
+          </div>
+        ) : filteredDeals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredDeals.map((deal) => (
               <WatchCard key={deal.id} deal={deal} />
@@ -166,7 +146,7 @@ export default function HomePage() {
                 Nessun risultato per &quot;{searchTerm}&quot;. Prova con un termine diverso.
               </p>
             ) : (
-              <p className="text-xl text-muted-foreground">
+               <p className="text-xl text-muted-foreground">
                 Nessun affare trovato per oggi. Torna più tardi o prova a cercare!
               </p>
             )}

@@ -1,17 +1,17 @@
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-// import { getFirestore, type Firestore } from 'firebase/firestore'; // For later use with user data
+import { getFirestore, type Firestore } from 'firebase/firestore'; // For later use with user data
 
 // Construct Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyBsup1LANccRepTNF0Y1CoBcfMjnqZGkyw",
-  authDomain: "watchgraph-a91fd.firebaseapp.com",
-  projectId: "watchgraph-a91fd",
-  storageBucket: "watchgraph-a91fd.firebasestorage.app",
-  messagingSenderId: "984650741137",
-  appId: "1:984650741137:web:861fec7023fe4afbe5d630",
-  measurementId: "G-8KZVYL1TGD",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Validate that all required Firebase config values are present
@@ -26,8 +26,6 @@ if (
   console.error(
     'Firebase configuration is incomplete. Please check your .env file and ensure all NEXT_PUBLIC_FIREBASE_ variables are set.'
   );
-  // Optionally, you could throw an error here or handle it gracefully
-  // For now, we'll log an error, and Firebase initialization might fail or use undefined values.
 }
 
 
@@ -40,6 +38,6 @@ if (!getApps().length) {
 }
 
 const auth: Auth = getAuth(app);
-// const db: Firestore = getFirestore(app); // For later use
+const db: Firestore = getFirestore(app);
 
-export { app, auth }; // db
+export { app, auth, db };
