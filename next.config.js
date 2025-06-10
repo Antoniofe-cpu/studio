@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -40,7 +41,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.redd.it', // Added new hostname
+        hostname: 'i.redd.it', // Ensuring this is present
         port: '',
         pathname: '/**',
       },
