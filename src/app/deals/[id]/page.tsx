@@ -14,7 +14,7 @@ import { ImageGallery } from '@/components/image-gallery';
 
 interface DealPageProps {
   params: {
-    id: string; 
+    id: string;
   };
 }
 
@@ -44,7 +44,7 @@ export default async function DealPage({ params }: DealPageProps) {
       </main>
     );
   }
-  
+
   const pageTitle = `${deal.brand} ${deal.model} - Ref ${deal.referenceNumber}`;
   const galleryAltText = `${deal.brand} ${deal.model}`;
 
@@ -52,12 +52,12 @@ export default async function DealPage({ params }: DealPageProps) {
     <main className="container mx-auto p-4 md:p-8">
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
-          
+
           <div className="lg:col-span-3">
-            <ImageGallery 
-              imageUrls={deal.imageUrls} 
-              imageUrl={deal.imageUrl} 
-              altText={galleryAltText} 
+            <ImageGallery
+              imageUrls={deal.imageUrls}
+              imageUrl={deal.imageUrl}
+              altText={galleryAltText}
             />
           </div>
 
@@ -67,20 +67,20 @@ export default async function DealPage({ params }: DealPageProps) {
               <CardDescription className="text-xl md:text-2xl text-muted-foreground">{deal.model}</CardDescription>
               <p className="text-sm text-muted-foreground pt-1">Ref: {deal.referenceNumber}</p>
             </CardHeader>
-            
+
             <CardContent className="p-0 space-y-4">
               <div className="border bg-card p-4 rounded-lg space-y-2 shadow-sm">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-muted-foreground">Listing Price:</span>
+                  <span className="text-sm font-medium text-muted-foreground">Prezzo Annuncio:</span>
                   <span className="text-2xl font-bold text-primary">€{deal.listingPrice?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-muted-foreground">Market Price:</span>
+                  <span className="text-sm font-medium text-muted-foreground">Valore di Mercato:</span>
                   <span className="text-lg font-semibold">€{deal.marketPrice?.toLocaleString()}</span>
                 </div>
                 {deal.retailPrice !== undefined && (
                   <div className="flex justify-between items-baseline text-sm">
-                    <span className="text-muted-foreground">Retail Price:</span>
+                    <span className="text-muted-foreground">Prezzo Listino (Nuovo):</span>
                     <span className="text-foreground">€{deal.retailPrice?.toLocaleString()}</span>
                   </div>
                 )}
@@ -96,8 +96,8 @@ export default async function DealPage({ params }: DealPageProps) {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground flex items-center"><Percent className="w-4 h-4 mr-1.5"/>Est. Margin:</span>
-                  <Badge 
-                    variant={deal.estimatedMarginPercent > 10 ? 'default' : 'secondary'} 
+                  <Badge
+                    variant={deal.estimatedMarginPercent > 10 ? 'default' : 'secondary'}
                     className={`${deal.estimatedMarginPercent > 10 ? 'bg-green-600/80 hover:bg-green-600' : 'bg-yellow-600/80 hover:bg-yellow-600'} text-primary-foreground font-semibold`}>
                     {deal.estimatedMarginPercent?.toFixed(1)}%
                   </Badge>
@@ -117,7 +117,7 @@ export default async function DealPage({ params }: DealPageProps) {
                 {deal.risk && <div className="flex justify-between"><span className="text-muted-foreground flex items-center"><ShoppingCart className="w-4 h-4 mr-1.5"/>Risk:</span> <span className="font-medium">{deal.risk}</span></div>}
                 {deal.location && <div className="flex justify-between"><span className="text-muted-foreground flex items-center"><MapPin className="w-4 h-4 mr-1.5"/>Location:</span> <span className="font-medium">{deal.location}</span></div>}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center"><CalendarDays className="w-4 h-4 mr-1.5"/>Last Updated:</span> 
+                  <span className="text-muted-foreground flex items-center"><CalendarDays className="w-4 h-4 mr-1.5"/>Last Updated:</span>
                   <span className="font-medium text-xs">{new Date(deal.lastUpdated).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour:'2-digit', minute:'2-digit' })}</span>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default async function DealPage({ params }: DealPageProps) {
             </Button>
           </div>
         </div>
-        
+
         {(deal.description && deal.description !== 'No description provided.') && (
           <div className="lg:col-span-5 p-6 md:p-8 border-t">
             <h3 className="text-xl font-semibold mb-3 text-primary">Description</h3>
@@ -155,3 +155,4 @@ export default async function DealPage({ params }: DealPageProps) {
   );
 }
 
+    
