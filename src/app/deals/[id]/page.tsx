@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+
 
 interface DealPageProps {
   params: {
@@ -55,8 +57,9 @@ export default async function DealPage({ params }: DealPageProps) {
                   src={deal.imageUrl}
                   alt={`${deal.brand} ${deal.model}`}
                   fill
-                  className="object-contain" // Use object-contain to see the whole watch
+                  className="object-contain" 
                   priority 
+                  sizes="(max-width: 1024px) 100vw, 60vw"
                   data-ai-hint="luxury watch photo"
                 />
               </div>
