@@ -83,4 +83,3 @@ export function ImageGallery({ imageUrls, altText = "Watch image" }: ImageGaller
     </div>
   );
 }
-
