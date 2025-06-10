@@ -1,51 +1,34 @@
 
-import { collection, getDocs, query, orderBy, where, Timestamp, type QueryConstraint } from 'firebase/firestore';
+import { collection, getDocs, query, Timestamp, type QueryConstraint, orderBy } from 'firebase/firestore';
 import { db } from './config';
 import type { WatchDeal, DealLabel } from '@/lib/types';
 
 const COLLECTION_NAME = 'deals'; 
 
-interface GetWatchDealsParams {
-  sortBy?: 'aiScore' | 'listingPrice';
-  order?: 'asc' | 'desc';
-  brand?: string;
-  // Add more filter/sort parameters here as needed
-}
+// Interface for parameters is no longer needed as we fetch all deals
+// interface GetWatchDealsParams {
+//   sortBy?: 'aiScore' | 'listingPrice';
+//   order?: 'asc' | 'desc';
+//   brand?: string;
+// }
 
-export async function getWatchDealsFromFirestore(params?: GetWatchDealsParams): Promise<WatchDeal[]> {
+export async function getWatchDealsFromFirestore(): Promise<WatchDeal[]> {
   try {
     const queryConstraints: QueryConstraint[] = [];
 
-    // Filtering
-    if (params?.brand) {
-      queryConstraints.push(where('brand', '==', params.brand));
-    }
+    // Optionally, you can still apply a default sort on the server if desired,
+    // for example, to ensure a consistent initial order before client-side interaction.
+    // queryConstraints.push(orderBy('aiScore', 'desc')); 
+    // For now, let's fetch without specific server-side order if client handles all.
 
-    // Sorting
-    const sortBy = params?.sortBy || 'aiScore'; // Default sort by aiScore
-    const order = params?.order || 'desc';     // Default order desc
-
-    // Firestore requires the first orderBy field to match the field in an inequality filter if one exists.
-    // For simple equality filters like 'brand', and a different orderBy field, it's generally fine.
-    // If we add range filters (e.g., price range) later, we might need to adjust or add composite indexes.
-    queryConstraints.push(orderBy(sortBy, order));
-    
-    // If sorting by something other than aiScore, and aiScore is not the primary sort,
-    // you might want a secondary sort to ensure consistent ordering for items with the same primary sort value.
-    // For example, if sorting by price, then by aiScore:
-    if (sortBy !== 'aiScore') {
-      queryConstraints.push(orderBy('aiScore', 'desc')); // Secondary sort
-    }
-
-
-    console.log(`Fetching data from '${COLLECTION_NAME}' collection with params:`, params);
+    console.log(`Fetching all data from '${COLLECTION_NAME}' collection.`);
     const dealsCollectionRef = collection(db, COLLECTION_NAME);
-    const q = query(dealsCollectionRef, ...queryConstraints);
+    const q = query(dealsCollectionRef, ...queryConstraints); // Pass constraints if any default sort is kept
     
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      console.log("No documents found in the collection with the given criteria.");
+      console.log("No documents found in the 'deals' collection.");
       return [];
     }
 
@@ -99,3 +82,4 @@ export async function getWatchDealsFromFirestore(params?: GetWatchDealsParams): 
     return [];
   }
 }
+
