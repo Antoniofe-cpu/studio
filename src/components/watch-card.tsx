@@ -1,3 +1,5 @@
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { WatchDeal } from '@/lib/types';
@@ -26,6 +28,21 @@ const getScoreColor = (score: number) => {
 
 
 export function WatchCard({ deal }: WatchCardProps) {
+  const [formattedListingPrice, setFormattedListingPrice] = useState<string | null>(null);
+  const [formattedMarketPrice, setFormattedMarketPrice] = useState<string | null>(null);
+  const [formattedRetailPrice, setFormattedRetailPrice] = useState<string | null>(null);
+
+  useEffect(() => {
+    // These will only run on the client, after initial hydration
+    setFormattedListingPrice(deal.listingPrice.toLocaleString());
+    setFormattedMarketPrice(deal.marketPrice.toLocaleString());
+    if (deal.retailPrice !== undefined) {
+      setFormattedRetailPrice(deal.retailPrice.toLocaleString());
+    } else {
+      setFormattedRetailPrice(null); // Explicitly set to null if not present
+    }
+  }, [deal.listingPrice, deal.marketPrice, deal.retailPrice]);
+
   return (
     <Card className="flex flex-col overflow-hidden shadow-lg hover:shadow-primary/30 transition-shadow duration-300">
       <CardHeader className="p-4">
@@ -46,16 +63,22 @@ export function WatchCard({ deal }: WatchCardProps) {
       <CardContent className="p-4 space-y-3 text-sm flex-grow">
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Listing Price:</span>
-          <span className="font-semibold text-primary">€{deal.listingPrice.toLocaleString()}</span>
+          <span className="font-semibold text-primary">
+            €{formattedListingPrice !== null ? formattedListingPrice : deal.listingPrice.toString()}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Market Price:</span>
-          <span className="font-semibold">€{deal.marketPrice.toLocaleString()}</span>
+          <span className="font-semibold">
+            €{formattedMarketPrice !== null ? formattedMarketPrice : deal.marketPrice.toString()}
+          </span>
         </div>
-        {deal.retailPrice && (
+        {deal.retailPrice !== undefined && (
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Retail Price:</span>
-            <span className="font-semibold">€{deal.retailPrice.toLocaleString()}</span>
+            <span className="font-semibold">
+              €{formattedRetailPrice !== null ? formattedRetailPrice : deal.retailPrice.toString()}
+            </span>
           </div>
         )}
         
