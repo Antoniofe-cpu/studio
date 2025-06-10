@@ -35,9 +35,13 @@ export function WatchCard({ deal }: WatchCardProps) {
   const [formattedRetailPrice, setFormattedRetailPrice] = useState<string | null>(null);
 
   useEffect(() => {
-    setFormattedListingPrice(deal.listingPrice.toLocaleString());
-    setFormattedMarketPrice(deal.marketPrice.toLocaleString());
-    if (deal.retailPrice !== undefined) {
+    if (deal.listingPrice !== undefined && deal.listingPrice !== null) {
+      setFormattedListingPrice(deal.listingPrice.toLocaleString());
+    }
+    if (deal.marketPrice !== undefined && deal.marketPrice !== null) {
+      setFormattedMarketPrice(deal.marketPrice.toLocaleString());
+    }
+    if (deal.retailPrice !== undefined && deal.retailPrice !== null) {
       setFormattedRetailPrice(deal.retailPrice.toLocaleString());
     } else {
       setFormattedRetailPrice(null);
@@ -73,20 +77,20 @@ export function WatchCard({ deal }: WatchCardProps) {
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-3 text-sm flex-grow">
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Listing Price:</span>
+            <span className="text-muted-foreground">Prezzo Annuncio:</span>
             <span className="font-semibold text-primary">
-              €{formattedListingPrice !== null ? formattedListingPrice : deal.listingPrice.toString()}
+              €{formattedListingPrice !== null ? formattedListingPrice : (deal.listingPrice !== undefined && deal.listingPrice !== null ? deal.listingPrice.toString() : 'N/A')}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Market Price:</span>
+            <span className="text-muted-foreground">Valore di Mercato:</span>
             <span className="font-semibold">
-              €{formattedMarketPrice !== null ? formattedMarketPrice : deal.marketPrice.toString()}
+              €{formattedMarketPrice !== null ? formattedMarketPrice : (deal.marketPrice !== undefined && deal.marketPrice !== null ? deal.marketPrice.toString() : 'N/A')}
             </span>
           </div>
-          {deal.retailPrice !== undefined && (
+          {deal.retailPrice !== undefined && deal.retailPrice !== null && (
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Retail Price:</span>
+              <span className="text-muted-foreground">Prezzo Listino (Nuovo):</span>
               <span className="font-semibold">
                 €{formattedRetailPrice !== null ? formattedRetailPrice : deal.retailPrice.toString()}
               </span>
@@ -96,15 +100,15 @@ export function WatchCard({ deal }: WatchCardProps) {
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><TrendingUp className="w-4 h-4 mr-1.5" /> AI Score:</span>
-              <span className="font-bold text-lg">{deal.aiScore}/100</span>
+              <span className="font-bold text-lg">{deal.aiScore !== undefined && deal.aiScore !== null ? deal.aiScore : 'N/A'}/100</span>
             </div>
-            <Progress value={deal.aiScore} className="h-2" indicatorClassName={getScoreColor(deal.aiScore)} />
+            <Progress value={deal.aiScore || 0} className="h-2" indicatorClassName={getScoreColor(deal.aiScore || 0)} />
           </div>
 
           <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><Percent className="w-4 h-4 mr-1.5" /> Margin:</span>
               <Badge variant={deal.estimatedMarginPercent > 10 ? 'default' : 'secondary'} className={`${deal.estimatedMarginPercent > 10 ? 'bg-green-600/80 hover:bg-green-600' : 'bg-yellow-600/80 hover:bg-yellow-600'} text-primary-foreground`}>
-                {deal.estimatedMarginPercent.toFixed(1)}%
+                {deal.estimatedMarginPercent !== undefined && deal.estimatedMarginPercent !== null ? deal.estimatedMarginPercent.toFixed(1) : 'N/A'}%
               </Badge>
           </div>
           
