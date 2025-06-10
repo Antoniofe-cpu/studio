@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'b.thumbs.redditmedia.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   transpilePackages: ['firebase', '@firebase/auth'],
