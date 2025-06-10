@@ -2,7 +2,7 @@
 import type { WatchDeal } from '@/lib/types';
 import { WatchCard } from '@/components/watch-card';
 import { getWatchDealsFromFirestore } from '@/lib/firebase/firestore-service';
-import { DealFilters } from '@/components/filters/deal-filters'; // New component for filters
+import { DealFilters } from '@/components/filters/deal-filters'; 
 
 // The page becomes an async Server Component
 export default async function HomePage({
@@ -61,7 +61,9 @@ export default async function HomePage({
               No deals found matching your criteria.
             </p>
             <p className="text-sm text-muted-foreground">
-              Try adjusting your filters or check back later.
+              Please check if data exists in the 'deals' collection in Firestore
+              and that your Firestore security rules allow read access.
+              Also, check the server console logs for more details.
             </p>
           </div>
         )}
