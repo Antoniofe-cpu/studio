@@ -6,22 +6,28 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Users, ListChecks, BarChart, Loader2 } from "lucide-react";
+import { ShieldCheck, Users, ListChecks, BarChart, Loader2, AlertTriangle } from "lucide-react";
+
+// !!! IMPORTANTE: Sostituisci questa email con l'email del tuo utente amministratore !!!
+const ADMIN_EMAIL = 'admin@example.com';
 
 export default function AdminPage() {
   const { currentUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !currentUser) {
-      // In a real app, you might redirect to login or an unauthorized page.
-      // Also, you'd check for admin roles here.
-      router.push('/login'); 
+    if (loading) {
+      return; // Aspetta che il caricamento sia completato
     }
-    // Add admin role check in a real application:
-    // if (!loading && currentUser && !currentUser.isAdmin) { // Assuming isAdmin property
-    //   router.push('/unauthorized');
-    // }
+
+    if (!currentUser) {
+      router.push('/login'); // Se non è loggato, reindirizza al login
+      return;
+    }
+
+    if (currentUser.email !== ADMIN_EMAIL) {
+      router.push('/dashboard'); // Se non è admin, reindirizza alla dashboard
+    }
   }, [currentUser, loading, router]);
 
   if (loading) {
@@ -33,21 +39,21 @@ export default function AdminPage() {
     );
   }
 
-  if (!currentUser) {
-     // This will be briefly shown before redirect effect kicks in
+  if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+    // Questo messaggio viene mostrato brevemente prima del reindirizzamento
+    // o se l'utente non è l'admin corretto.
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
-            <p className="text-lg text-muted-foreground">Redirecting...</p>
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] text-center">
+            <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">Accesso Negato</h2>
+            <p className="text-muted-foreground">
+                Non hai i permessi necessari per visualizzare questa pagina.
+                { !currentUser && " Stai per essere reindirizzato alla pagina di login."}
+                { currentUser && currentUser.email !== ADMIN_EMAIL && " Stai per essere reindirizzato alla tua dashboard."}
+            </p>
         </div>
     );
   }
-
-  // Add a check for admin role here if you implement it
-  // For now, any logged-in user can see this if they navigate directly.
-  // A proper admin check would be:
-  // if (!currentUser.isAdmin) {
-  //   return <p>Unauthorized</p>;
-  // }
 
   return (
     <div className="space-y-8">
@@ -57,6 +63,16 @@ export default function AdminPage() {
         </h1>
         {/* Add any global admin actions here */}
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Messaggio Importante per l'Admin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive font-semibold">
+            Assicurati di aver aggiornato il file <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> e <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code> con la tua email di amministratore corretta al posto di 'admin@example.com'.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>

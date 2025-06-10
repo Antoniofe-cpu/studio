@@ -10,6 +10,9 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { UserCircle, LogOut, Loader2 } from 'lucide-react';
 
+// !!! IMPORTANTE: Sostituisci questa email con l'email del tuo utente amministratore !!!
+const ADMIN_EMAIL = 'admin@example.com';
+
 export function Header() {
   const { currentUser, logout, loading } = useAuth();
   const router = useRouter();
@@ -34,7 +37,7 @@ export function Header() {
           <NavLink href="/">Deals</NavLink>
           <NavLink href="/scan">AI Search Scanner</NavLink>
           {currentUser && <NavLink href="/dashboard">Dashboard</NavLink>}
-          {currentUser && <NavLink href="/admin">Admin</NavLink>} {/* Consider admin roles in future */}
+          {currentUser && currentUser.email === ADMIN_EMAIL && <NavLink href="/admin">Admin</NavLink>}
         </nav>
         <div className="flex items-center space-x-2">
           {loading ? (
