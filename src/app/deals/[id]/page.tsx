@@ -1,15 +1,17 @@
 
 import { getWatchDealById } from '@/lib/firebase/firestore-service';
 import type { WatchDeal } from '@/lib/types';
-import Image from 'next/image';
+// Rimuovi Image da 'next/image' qui se non usato direttamente, ma è usato nel fallback
+import Image from 'next/image'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, Clock } from 'lucide-react';
+import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, Clock, CalendarDays, TagIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
+import { ImageGallery } from '@/components/image-gallery';
 
 
 interface DealPageProps {
@@ -44,31 +46,16 @@ export default async function DealPage({ params }: DealPageProps) {
       </main>
     );
   }
+  
+  const pageTitle = `${deal.brand} ${deal.model} - Ref ${deal.referenceNumber}`;
 
   return (
     <main className="container mx-auto p-4 md:p-8">
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
           
-          <div className="lg:col-span-3 bg-muted/30 p-4 sm:p-6 md:p-8 flex justify-center items-center">
-            {deal.imageUrl && !deal.imageUrl.includes('placehold.co') ? (
-              <div className="relative aspect-[4/3] w-full max-w-2xl rounded-lg overflow-hidden shadow-lg">
-                <Image
-                  src={deal.imageUrl}
-                  alt={`${deal.brand} ${deal.model}`}
-                  fill
-                  className="object-contain" 
-                  priority 
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  data-ai-hint="luxury watch photo"
-                />
-              </div>
-            ) : (
-              <div className="aspect-[4/3] w-full max-w-2xl rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                <Tag className="h-24 w-24" />
-                 <span className="ml-4 text-xl">No Image Available</span>
-              </div>
-            )}
+          <div className="lg:col-span-3 bg-muted/30 p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center">
+            <ImageGallery imageUrls={deal.imageUrls && deal.imageUrls.length > 0 ? deal.imageUrls : [deal.imageUrl]} altText={`${deal.brand} ${deal.model}`} />
           </div>
 
           <div className="lg:col-span-2 p-6 md:p-8 space-y-6">
@@ -127,7 +114,7 @@ export default async function DealPage({ params }: DealPageProps) {
                 {deal.risk && <div className="flex justify-between"><span className="text-muted-foreground flex items-center"><ShoppingCart className="w-4 h-4 mr-1.5"/>Risk:</span> <span className="font-medium">{deal.risk}</span></div>}
                 {deal.location && <div className="flex justify-between"><span className="text-muted-foreground flex items-center"><MapPin className="w-4 h-4 mr-1.5"/>Location:</span> <span className="font-medium">{deal.location}</span></div>}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center"><Clock className="w-4 h-4 mr-1.5"/>Last Updated:</span> 
+                  <span className="text-muted-foreground flex items-center"><CalendarDays className="w-4 h-4 mr-1.5"/>Last Updated:</span> 
                   <span className="font-medium text-xs">{new Date(deal.lastUpdated).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric', hour:'2-digit', minute:'2-digit' })}</span>
                 </div>
               </div>
@@ -156,8 +143,7 @@ export default async function DealPage({ params }: DealPageProps) {
             <p className="text-foreground/90 whitespace-pre-wrap leading-relaxed">{deal.description}</p>
           </div>
         )}
-         {/* Placeholder for future charts */}
-        <div className="lg:col-span-5 p-6 md:p-8 border-t">
+         <div className="lg:col-span-5 p-6 md:p-8 border-t">
             <h3 className="text-xl font-semibold mb-3 text-primary">Historical Data & Charts</h3>
             <p className="text-muted-foreground">Price history charts and margin trends will be displayed here soon.</p>
         </div>

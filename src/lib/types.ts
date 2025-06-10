@@ -2,7 +2,8 @@ export type DealLabel = '🔥 Affare' | '👍 OK' | '❌ Fuori Prezzo';
 
 export interface WatchDeal {
   id: string;
-  imageUrl: string;
+  imageUrl: string; // Primary image, can be used as fallback or first image in gallery
+  imageUrls?: string[]; // Optional array of image URLs for the gallery
   brand: string;
   model: string;
   referenceNumber: string;
