@@ -32,6 +32,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'preview.redd.it',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.redd.it', // Added new hostname
+        port: '',
+        pathname: '/**',
+      },
       // Aggiungi qui altri domini se in futuro faremo scraping da altri siti
       // Esempio per Chrono24:
       // {
