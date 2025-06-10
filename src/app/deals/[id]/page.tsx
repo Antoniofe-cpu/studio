@@ -1,8 +1,6 @@
 
 import { getWatchDealById } from '@/lib/firebase/firestore-service';
 import type { WatchDeal } from '@/lib/types';
-// Rimuovi Image da 'next/image' qui se non usato direttamente, ma è usato nel fallback
-import Image from 'next/image'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, CalendarDays, TagIcon } from 'lucide-react';
@@ -48,15 +46,19 @@ export default async function DealPage({ params }: DealPageProps) {
   }
   
   const pageTitle = `${deal.brand} ${deal.model} - Ref ${deal.referenceNumber}`;
+  const galleryAltText = `${deal.brand} ${deal.model}`;
 
   return (
     <main className="container mx-auto p-4 md:p-8">
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
           
-          {/* Colonna Sinistra: Ora è un semplice contenitore di colonna */}
           <div className="lg:col-span-3">
-            <ImageGallery imageUrls={deal.imageUrls || [deal.imageUrl]} altText={`${deal.brand} ${deal.model}`} />
+            <ImageGallery 
+              imageUrls={deal.imageUrls} 
+              imageUrl={deal.imageUrl} 
+              altText={galleryAltText} 
+            />
           </div>
 
           <div className="lg:col-span-2 p-6 md:p-8 space-y-6">
@@ -152,3 +154,4 @@ export default async function DealPage({ params }: DealPageProps) {
     </main>
   );
 }
+
