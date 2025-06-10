@@ -1,14 +1,14 @@
-import { AIPhotoScannerForm } from '@/components/ai/photo-scanner-form';
+import { WatchSelectorForm } from '@/components/ai/watch-selector-form';
 
-export default function AIPhotoScannerPage() {
+export default function AISearchScannerPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline">AI Watch Photo Scanner</h1>
+      <h1 className="text-3xl font-bold font-headline text-primary">AI Watch Search & Scanner</h1>
       <p className="text-muted-foreground">
-        Got a photo of a watch? Upload it here. Our AI will analyze the image to identify the model
-        and provide an estimated current market value. Ensure the image is clear and well-lit for best results.
+        Seleziona la marca e il modello di un orologio per ottenere una stima del valore di mercato attuale
+        e un punteggio AI. La nostra IA analizzerà i dati da diverse fonti per fornirti una valutazione.
       </p>
-      <AIPhotoScannerForm />
+      <WatchSelectorForm />
     </div>
   );
 }

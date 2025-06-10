@@ -1,13 +1,22 @@
+// This file is no longer used for AI Photo Scanner, 
+// its functionality has been replaced by WatchSelectorForm.
+// Keeping the file for now, but it can be deleted later if not repurposed.
 'use client';
 
 import { useState } from 'react';
-import { aiPhotoScanner, type AiPhotoScannerInput, type AiPhotoScannerOutput } from '@/ai/flows/ai-photo-scanner';
+// Intentionally keeping imports commented to avoid build errors if this file is not deleted immediately
+// import { aiPhotoScanner, type AiPhotoScannerInput, type AiPhotoScannerOutput } from '@/ai/flows/ai-photo-scanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileUploader } from '@/components/file-uploader';
 import { Loader2, ScanSearch, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+
+// Mock type for AiPhotoScannerOutput since the flow might be removed
+type AiPhotoScannerOutput = { identification: { modelName: string, estimatedValue: string }};
+type AiPhotoScannerInput = { photoDataUri: string };
+
 
 export function AIPhotoScannerForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +28,7 @@ export function AIPhotoScannerForm() {
   const handleFileSelect = (file: File | null, dataUrl: string | null) => {
     setSelectedFile(file);
     setPhotoDataUri(dataUrl);
-    setScanResult(null); // Clear previous results when a new file is selected
+    setScanResult(null); 
   };
 
   async function handleSubmit() {
@@ -38,8 +47,17 @@ export function AIPhotoScannerForm() {
     const inputData: AiPhotoScannerInput = { photoDataUri };
 
     try {
-      const result = await aiPhotoScanner(inputData);
+      // const result = await aiPhotoScanner(inputData); // Original call
+      // Mocking the result as the flow might be deprecated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result: AiPhotoScannerOutput = {
+        identification: {
+          modelName: "Mocked Model Name",
+          estimatedValue: "€X,XXX (Mocked)"
+        }
+      }
       setScanResult(result);
+      toast({title: "Info", description: "Photo scanning is currently mocked as this feature is being redesigned."});
     } catch (error) {
       console.error('Error scanning photo:', error);
       toast({
@@ -53,20 +71,20 @@ export function AIPhotoScannerForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full opacity-50 pointer-events-none">
       <CardHeader>
-        <CardTitle className="flex items-center"><ScanSearch className="mr-2 h-6 w-6 text-primary" />AI Photo Scanner</CardTitle>
+        <CardTitle className="flex items-center"><ScanSearch className="mr-2 h-6 w-6 text-primary" />AI Photo Scanner (Deprecated)</CardTitle>
         <CardDescription>
-          Upload a photo of a watch, and our AI will try to identify the model and estimate its current value.
+          This photo scanner is being replaced by the AI Search Scanner.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <FileUploader onFileSelect={handleFileSelect} acceptedFileTypes="image/jpeg, image/png, image/webp, image/gif" />
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-4">
-        <Button onClick={handleSubmit} disabled={isLoading || !selectedFile} className="w-full">
+        <Button onClick={handleSubmit} disabled={true || isLoading || !selectedFile} className="w-full">
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-          Scan Watch Photo
+          Scan Watch Photo (Disabled)
         </Button>
       </CardFooter>
 

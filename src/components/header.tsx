@@ -10,7 +10,7 @@ export function Header() {
         <Logo />
         <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
           <NavLink href="/">Deals</NavLink>
-          <NavLink href="/scan">Scan Watch</NavLink>
+          <NavLink href="/scan">AI Search Scanner</NavLink>
           <NavLink href="/dashboard">Dashboard</NavLink>
           <NavLink href="/admin">Admin</NavLink>
         </nav>
