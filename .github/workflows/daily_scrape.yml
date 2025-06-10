@@ -27,9 +27,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests firebase-admin
         
-    - name: Create Firebase Service Account Key from Secret
-      run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" | base64
+    - name: Create and Verify Firebase Service Account Key
+  run: 
+    echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" | base64 --decode > ${{ github.workspace }}/serviceAccountKey.json
+    echo "--- Verifying file existence ---"
+    ls -l ${{ github.workspace }}
       # Questo comando prende il secret di GitHub e ricrea il file .json nella macchina virtuale
 
     - name: Run the Scraper
-      run: python scraper_v3.1.py # Esegue il nostro script!
+  run: python ${{ github.workspace }}/scraper_v3.1.py # Esegue il nostro script!
