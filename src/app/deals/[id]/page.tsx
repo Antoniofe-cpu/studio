@@ -5,7 +5,7 @@ import type { WatchDeal } from '@/lib/types';
 import Image from 'next/image'; 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, Clock, CalendarDays, TagIcon } from 'lucide-react';
+import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, CalendarDays, TagIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -54,8 +54,9 @@ export default async function DealPage({ params }: DealPageProps) {
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
           
-          <div className="lg:col-span-3 bg-muted/30 p-4 sm:p-6 md:p-8 flex flex-col justify-center items-center">
-            <ImageGallery imageUrls={deal.imageUrls && deal.imageUrls.length > 0 ? deal.imageUrls : [deal.imageUrl]} altText={`${deal.brand} ${deal.model}`} />
+          {/* Colonna Sinistra: Ora è un semplice contenitore di colonna */}
+          <div className="lg:col-span-3">
+            <ImageGallery imageUrls={deal.imageUrls || [deal.imageUrl]} altText={`${deal.brand} ${deal.model}`} />
           </div>
 
           <div className="lg:col-span-2 p-6 md:p-8 space-y-6">
