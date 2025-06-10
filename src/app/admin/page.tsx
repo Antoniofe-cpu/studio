@@ -1,8 +1,54 @@
+
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Users, ListChecks, BarChart } from "lucide-react";
+import { ShieldCheck, Users, ListChecks, BarChart, Loader2 } from "lucide-react";
 
 export default function AdminPage() {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      // In a real app, you might redirect to login or an unauthorized page.
+      // Also, you'd check for admin roles here.
+      router.push('/login'); 
+    }
+    // Add admin role check in a real application:
+    // if (!loading && currentUser && !currentUser.isAdmin) { // Assuming isAdmin property
+    //   router.push('/unauthorized');
+    // }
+  }, [currentUser, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-lg text-muted-foreground">Loading Admin Dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+     // This will be briefly shown before redirect effect kicks in
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+            <p className="text-lg text-muted-foreground">Redirecting...</p>
+        </div>
+    );
+  }
+
+  // Add a check for admin role here if you implement it
+  // For now, any logged-in user can see this if they navigate directly.
+  // A proper admin check would be:
+  // if (!currentUser.isAdmin) {
+  //   return <p>Unauthorized</p>;
+  // }
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">

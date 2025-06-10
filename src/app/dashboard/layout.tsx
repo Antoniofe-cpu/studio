@@ -1,12 +1,45 @@
+
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 import { NavLink } from '@/components/nav-link';
 import { Separator } from '@/components/ui/separator';
-import { Package, BarChart2, User, Settings, Bell, Star, SearchCode, SlidersHorizontal } from 'lucide-react';
+import { Package, BarChart2, User, Settings, Bell, Star, SearchCode, SlidersHorizontal, Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push('/login');
+    }
+  }, [currentUser, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-4 text-lg text-muted-foreground">Loading Dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    // This will be briefly shown before redirect effect kicks in, or if redirect fails
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+            <p className="text-lg text-muted-foreground">Redirecting to login...</p>
+        </div>
+    );
+  }
+
   return (
     <div className="flex flex-col md:flex-row gap-8">
       <aside className="md:w-64 bg-card p-4 rounded-lg shadow-md">
