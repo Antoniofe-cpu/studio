@@ -25,7 +25,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'a.thumbs.redditmedia.com', // Ensured this is present
+        hostname: 'a.thumbs.redditmedia.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'external-preview.redd.it',
         port: '',
         pathname: '/**',
       },
