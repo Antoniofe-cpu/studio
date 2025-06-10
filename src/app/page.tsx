@@ -1,18 +1,31 @@
 
-// Remove 'use client' - this is now a Server Component
-// import { useState, useEffect } from 'react'; // No longer needed for fetching
 import type { WatchDeal } from '@/lib/types';
 import { WatchCard } from '@/components/watch-card';
-// import { Button } from '@/components/ui/button'; // Removed for now
-// import { Input } from '@/components/ui/input'; // Removed for now
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Removed for now
-// import { Filter, ListRestart, Search, Loader2, AlertTriangle } from 'lucide-react'; // Removed for now
 import { getWatchDealsFromFirestore } from '@/lib/firebase/firestore-service';
+import { DealFilters } from '@/components/filters/deal-filters'; // New component for filters
 
 // The page becomes an async Server Component
-export default async function HomePage() {
-  // Data is fetched on the server before the page is sent to the client.
-  const deals: WatchDeal[] = await getWatchDealsFromFirestore();
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: {
+    sortBy?: 'aiScore' | 'listingPrice';
+    order?: 'asc' | 'desc';
+    brand?: string;
+    // Add other expected searchParams types here
+  };
+}) {
+  // Extract filter/sort parameters from searchParams
+  const sortBy = searchParams?.sortBy;
+  const order = searchParams?.order;
+  const brand = searchParams?.brand;
+
+  // Data is fetched on the server with the applied filters/sorting
+  const deals: WatchDeal[] = await getWatchDealsFromFirestore({
+    sortBy,
+    order,
+    brand,
+  });
 
   return (
     <div className="space-y-8">
@@ -23,12 +36,18 @@ export default async function HomePage() {
         </p>
       </section>
 
+      {/* Filter and Sort UI Component */}
+      <DealFilters 
+        initialSortBy={sortBy}
+        initialOrder={order}
+        initialBrand={brand}
+      />
+
       <section className="p-4 sm:p-6 bg-card rounded-lg shadow-md">
-        {/* 
-          The client-side search, sort, and filter controls have been removed for this SSR implementation.
-          We can discuss re-adding them using Server Actions or client components that interact with the server-rendered list.
-        */}
-        <h2 className="text-2xl font-semibold mb-6 text-center">Live Deals from Firestore</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">
+          {brand ? `Live Deals for ${brand}` : 'Live Deals from Firestore'}
+          {sortBy && order && ` (Sorted by ${sortBy} ${order})`}
+        </h2>
         
         {deals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -39,10 +58,10 @@ export default async function HomePage() {
         ) : (
           <div className="text-center py-10">
             <p className="text-xl text-muted-foreground">
-              No deals found in the database at the moment.
+              No deals found matching your criteria.
             </p>
             <p className="text-sm text-muted-foreground">
-              Try running the Python scraper to populate Firestore, or check back later.
+              Try adjusting your filters or check back later.
             </p>
           </div>
         )}
