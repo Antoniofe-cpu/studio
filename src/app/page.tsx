@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from 'react';
 import type { WatchDeal } from '@/lib/types';
 import { WatchCard } from '@/components/watch-card';
 import { Button } from '@/components/ui/button';
@@ -94,6 +98,17 @@ const mockDeals: WatchDeal[] = [
 
 
 export default function HomePage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredDeals = mockDeals.filter(deal => {
+    const term = searchTerm.toLowerCase();
+    return (
+      deal.brand.toLowerCase().includes(term) ||
+      deal.model.toLowerCase().includes(term) ||
+      deal.referenceNumber.toLowerCase().includes(term)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <section className="text-center py-8 bg-card rounded-lg shadow-md">
@@ -106,7 +121,13 @@ export default function HomePage() {
       <section className="p-4 sm:p-6 bg-card rounded-lg shadow-md">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6">
           <div className="relative w-full sm:max-w-xs">
-            <Input type="search" placeholder="Search by brand, model, ref..." className="pl-10" />
+            <Input 
+              type="search" 
+              placeholder="Search by brand, model, ref..." 
+              className="pl-10" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -125,25 +146,33 @@ export default function HomePage() {
             <Button variant="outline">
               <Filter className="mr-2 h-4 w-4" /> Filters
             </Button>
-             <Button variant="ghost" size="icon">
+             <Button variant="ghost" size="icon" onClick={() => setSearchTerm('')}>
               <ListRestart className="h-5 w-5" />
               <span className="sr-only">Reset Filters</span>
             </Button>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mockDeals.map((deal) => (
-            <WatchCard key={deal.id} deal={deal} />
-          ))}
-        </div>
+        {filteredDeals.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredDeals.map((deal) => (
+              <WatchCard key={deal.id} deal={deal} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            {searchTerm ? (
+              <p className="text-xl text-muted-foreground">
+                Nessun risultato per &quot;{searchTerm}&quot;. Prova con un termine diverso.
+              </p>
+            ) : (
+              <p className="text-xl text-muted-foreground">
+                Nessun affare trovato per oggi. Torna più tardi o prova a cercare!
+              </p>
+            )}
+          </div>
+        )}
       </section>
-
-      {mockDeals.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-xl text-muted-foreground">No deals found for today. Check back later!</p>
-        </div>
-      )}
     </div>
   );
 }
