@@ -35,6 +35,3 @@ jobs:
 
     - name: Run the Scraper
       run: python ${{ github.workspace }}/scraper_v3.2.py
-
-    - name: Run the Scraper
-      run: python ${{ github.workspace }}/scraper_v3.2.py
