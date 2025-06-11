@@ -1,7 +1,7 @@
 
 'use client'; // Required for useRouter
 
-import { useEffect, useState } from 'react'; // useEffect and useState for client-side logic if needed in future
+import { useEffect, useState, use } from 'react'; // Ensure 'use' is imported
 import { useRouter } from 'next/navigation';
 import { getWatchDealById } from '@/lib/firebase/firestore-service';
 import type { WatchDeal } from '@/lib/types';
@@ -17,7 +17,7 @@ import { ImageGallery } from '@/components/image-gallery';
 
 
 interface DealPageProps {
-  params: {
+  params: { // This 'params' object is what Next.js treats as a Promise
     id: string;
   };
 }
@@ -31,7 +31,8 @@ const getScoreColor = (score: number | null) => {
 
 export default function DealPage({ params }: DealPageProps) {
   const router = useRouter();
-  const { id } = params;
+  const resolvedParams = use(params); // Correctly unwrap the params Promise
+  const id = resolvedParams.id;     // Access id from the resolved object
   const [deal, setDeal] = useState<WatchDeal | null | undefined>(undefined); // undefined for initial loading state
 
   useEffect(() => {
@@ -39,7 +40,9 @@ export default function DealPage({ params }: DealPageProps) {
       const fetchedDeal = await getWatchDealById(id);
       setDeal(fetchedDeal);
     }
-    fetchDeal();
+    if (id) { // Ensure id is available before fetching
+      fetchDeal();
+    }
   }, [id]);
 
   if (deal === undefined) { // Loading state
@@ -81,6 +84,7 @@ export default function DealPage({ params }: DealPageProps) {
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
 
+          {/* Colonna Sinistra: Ora è un semplice contenitore di colonna */}
           <div className="lg:col-span-3">
             <ImageGallery 
               imageUrls={deal.imageUrls} 
@@ -97,6 +101,7 @@ export default function DealPage({ params }: DealPageProps) {
             </CardHeader>
 
             <CardContent className="p-0 space-y-4">
+              {/* Sezione Prezzi - con etichette migliorate */}
               <div className="border bg-card p-4 rounded-lg space-y-2 shadow-sm">
                 <div className="flex justify-between items-baseline">
                   <span className="text-sm font-medium text-muted-foreground">Prezzo Annuncio:</span>
@@ -194,4 +199,3 @@ export default function DealPage({ params }: DealPageProps) {
     </main>
   );
 }
-
