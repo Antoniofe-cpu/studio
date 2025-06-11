@@ -8,13 +8,13 @@ import { getFirestore, type Firestore } from 'firebase/firestore';
 // Troverai questi valori nella console Firebase:
 // Impostazioni progetto > Generali > Le tue app > Seleziona la tua app Web > Configurazione SDK Firebase (opzione "Config").
 const firebaseConfig = {
-  apiKey: "INSERISCI_LA_TUA_API_KEY_QUI",
-  authDomain: "INSERISCI_IL_TUO_PROJECT_ID_QUI.firebaseapp.com",
-  projectId: "INSERISCI_IL_TUO_PROJECT_ID_QUI",
-  storageBucket: "INSERISCI_IL_TUO_PROJECT_ID_QUI.appspot.com",
-  messagingSenderId: "INSERISCI_IL_TUO_MESSAGING_SENDER_ID_QUI",
-  appId: "INSERISCI_LA_TUA_APP_ID_QUI",
-  measurementId: "INSERISCI_IL_TUO_MEASUREMENT_ID_QUI" // Opzionale, ma se presente nella tua config, includilo
+  apiKey: "AIzaSyBsup1LANccRepTNF0Y1CoBcfMjnqZGkyw",
+  authDomain: "watchgraph-a91fd.firebaseapp.com",
+  projectId: "watchgraph-a91fd",
+  storageBucket: "watchgraph-a91fd.firebasestorage.app",
+  messagingSenderId: "984650741137",
+  appId: "1:984650741137:web:861fec7023fe4afbe5d630",
+  measurementId: "G-8KZVYL1TGD" // Opzionale, ma se presente nella tua config, includilo
 };
 
 // Inizializza Firebase
