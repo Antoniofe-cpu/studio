@@ -41,18 +41,16 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.redd.it', // Ensuring this is present
+        hostname: 'i.redd.it', 
         port: '',
         pathname: '/**',
       },
-      // Aggiungi qui altri domini se in futuro faremo scraping da altri siti
-      // Esempio per Chrono24:
-      // {
-      //   protocol: 'https',
-      //   hostname: 'cdn.chrono24.com',
-      //   port: '',
-      //   pathname: '/**',
-      // }
+      {
+        protocol: 'https',
+        hostname: 'omegaforums.net', // Added this hostname
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   transpilePackages: ['firebase', '@firebase/auth'],

@@ -1,8 +1,5 @@
-
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -19,13 +16,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'b.thumbs.redditmedia.com',
+        hostname: 'a.thumbs.redditmedia.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'a.thumbs.redditmedia.com',
+        hostname: 'b.thumbs.redditmedia.com',
         port: '',
         pathname: '/**',
       },
@@ -43,7 +40,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.redd.it', // Added new hostname
+        hostname: 'i.redd.it', 
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'omegaforums.net', // Added this hostname
         port: '',
         pathname: '/**',
       },
@@ -52,4 +55,4 @@ const nextConfig: NextConfig = {
   transpilePackages: ['firebase', '@firebase/auth'],
 };
 
-export default nextConfig;
+module.exports = nextConfig;
