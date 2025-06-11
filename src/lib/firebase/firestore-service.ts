@@ -17,25 +17,22 @@ function mapDocToWatchDeal(docSnap: { id: string; data: () => any }): WatchDeal 
   } else if (typeof data.lastUpdated === 'object' && data.lastUpdated?.seconds) {
     lastUpdatedString = new Date(data.lastUpdated.seconds * 1000 + (data.lastUpdated.nanoseconds || 0) / 1000000).toISOString();
   } else {
-    // Fallback if lastUpdated is missing or in an unexpected format
-    lastUpdatedString = new Date(0).toISOString(); // Use epoch as a fallback
-    // console.warn(`Document ${docSnap.id} has missing or invalid lastUpdated. Using epoch as fallback.`);
+    lastUpdatedString = new Date(0).toISOString();
   }
 
-  const primaryImageUrl = data.imageUrl || null;
-  let galleryImageUrls: string[] = [];
+  let finalImageUrls: string[] = [];
+  let finalPrimaryImageUrl: string | null = null;
+
   if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
-    galleryImageUrls = data.imageUrls.filter((url: any) => typeof url === 'string');
-  } else if (primaryImageUrl) {
-    galleryImageUrls = [primaryImageUrl];
+    finalImageUrls = data.imageUrls.filter((url: any): url is string => typeof url === 'string' && url.trim() !== '');
   }
-  
-  if (primaryImageUrl && galleryImageUrls[0] !== primaryImageUrl) {
-     if (galleryImageUrls.includes(primaryImageUrl)) {
-        galleryImageUrls = [primaryImageUrl, ...galleryImageUrls.filter(url => url !== primaryImageUrl)];
-     } else {
-        galleryImageUrls = [primaryImageUrl, ...galleryImageUrls];
-     }
+
+  if (finalImageUrls.length === 0 && typeof data.imageUrl === 'string' && data.imageUrl.trim() !== '') {
+    finalImageUrls = [data.imageUrl.trim()];
+  }
+
+  if (finalImageUrls.length > 0) {
+    finalPrimaryImageUrl = finalImageUrls[0];
   }
   
   const validDealLabels: DealLabel[] = ['🔥 Affare', '👍 OK', '❌ Fuori Prezzo'];
@@ -62,8 +59,8 @@ function mapDocToWatchDeal(docSnap: { id: string; data: () => any }): WatchDeal 
     aiScore: typeof data.aiScore === 'number' ? data.aiScore : null,
     dealLabel: currentDealLabel,
     
-    imageUrl: primaryImageUrl,
-    imageUrls: galleryImageUrls,
+    imageUrl: finalPrimaryImageUrl,
+    imageUrls: finalImageUrls,
     
     sourceUrl: data.sourceUrl || '#',
     description: data.description || undefined,
@@ -82,7 +79,6 @@ function mapDocToWatchDeal(docSnap: { id: string; data: () => any }): WatchDeal 
 async function fetchDealsFromCollection(collectionName: string): Promise<WatchDeal[]> {
   try {
     const dealsCollectionRef = collection(db, collectionName);
-    // Add orderBy lastUpdated, desc by default for individual collection fetches
     const q = query(dealsCollectionRef, orderBy("lastUpdated", "desc"));
     const querySnapshot = await getDocs(q);
     
@@ -108,20 +104,16 @@ export async function getWatchDealsFromAllSources(): Promise<WatchDeal[]> {
 
     const allDealsMap = new Map<string, WatchDeal>();
 
-    // Add deals from the default collection first
     dealsFromDefault.forEach(deal => {
       allDealsMap.set(deal.id, deal);
     });
 
-    // Add or overwrite with deals from the multi-source collection
-    // This gives precedence to deals_multi_source if IDs are the same
     dealsFromMultiSource.forEach(deal => {
       allDealsMap.set(deal.id, deal);
     });
 
     const combinedDeals = Array.from(allDealsMap.values());
 
-    // Sort the combined list by lastUpdated in descending order
     combinedDeals.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
     
     console.log(`Successfully fetched and combined ${combinedDeals.length} deals from all sources.`);
@@ -137,7 +129,6 @@ export async function getWatchDealById(id: string): Promise<WatchDeal | null> {
   try {
     console.log(`Fetching single deal with ID: ${id} from all sources.`);
     
-    // Try fetching from multi-source collection first
     let docRef = doc(db, MULTI_SOURCE_DEALS_COLLECTION_NAME, id);
     let docSnap = await getDoc(docRef);
 
@@ -146,7 +137,6 @@ export async function getWatchDealById(id: string): Promise<WatchDeal | null> {
       return mapDocToWatchDeal({ id: docSnap.id, data: () => docSnap.data() });
     }
 
-    // If not found, try fetching from the default deals collection
     console.log(`Deal ${id} not in '${MULTI_SOURCE_DEALS_COLLECTION_NAME}', checking '${DEALS_COLLECTION_NAME}'.`);
     docRef = doc(db, DEALS_COLLECTION_NAME, id);
     docSnap = await getDoc(docRef);
@@ -164,8 +154,6 @@ export async function getWatchDealById(id: string): Promise<WatchDeal | null> {
   }
 }
 
-// Kept the original function for fetching from a single source if needed elsewhere,
-// though the main page will use getWatchDealsFromAllSources.
 export async function getWatchDealsFromFirestore(): Promise<WatchDeal[]> {
   return fetchDealsFromCollection(DEALS_COLLECTION_NAME);
 }
