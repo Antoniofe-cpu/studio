@@ -1,12 +1,11 @@
 
-import { getWatchDealsFromFirestore } from "@/lib/firebase/firestore-service";
-import { DealList } from "@/components/deal-list"; // Importa il nostro nuovo componente
+import { getWatchDealsFromAllSources } from "@/lib/firebase/firestore-service"; // Updated import
+import { DealList } from "@/components/deal-list";
 import type { WatchDeal } from '@/lib/types';
 
-// La pagina rimane un Server Component asincrono e veloce
 export default async function HomePage() {
-  // 1. Recupera TUTTI gli affari sul server
-  const allDeals: WatchDeal[] = await getWatchDealsFromFirestore();
+  // 1. Recupera TUTTI gli affari da tutte le fonti configurate sul server
+  const allDeals: WatchDeal[] = await getWatchDealsFromAllSources(); // Updated function call
 
   return (
     <div className="space-y-8">
@@ -17,7 +16,6 @@ export default async function HomePage() {
         </p>
       </section>
       
-      {/* 2. Passa i dati al componente client che gestirà l'interattività */}
       <DealList initialDeals={allDeals} />
 
     </div>
