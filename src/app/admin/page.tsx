@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, Users, ListChecks, BarChart, Loader2, AlertTriangle } from "lucide-react";
 
 // !!! IMPORTANTE: Sostituisci questa email con l'email del tuo utente amministratore !!!
-const ADMIN_EMAIL = 'admin@example.com';
+const ADMIN_EMAIL = 'ferrara.antonio08@gmail.com';
 
 export default function AdminPage() {
   const { currentUser, loading } = useAuth();
