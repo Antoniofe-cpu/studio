@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -101,8 +102,9 @@ export function ImageGallery({ imageUrls, imageUrl, altText = "Watch image" }: I
                   alt={`${altText || 'Watch thumbnail'} ${index + 1}`}
                   fill
                   className="object-cover"
-                  sizes="20vw"
+                  sizes="100px" // Modificato da "20vw" a "100px"
                   data-ai-hint="watch thumbnail"
+                  loading="lazy"
                 />
               </button>
             ))}
