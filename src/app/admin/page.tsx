@@ -69,7 +69,7 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           <p className="text-destructive font-semibold">
-            Assicurati di aver aggiornato il file <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> e <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code> con la tua email di amministratore corretta al posto di 'admin@example.com'.
+            Assicurati di aver aggiornato il file <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> e <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code> con la tua email di amministratore corretta (<code className="bg-muted px-1 py-0.5 rounded text-sm">{ADMIN_EMAIL}</code>).
           </p>
         </CardContent>
       </Card>
