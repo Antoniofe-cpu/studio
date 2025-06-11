@@ -63,16 +63,8 @@ export default function AdminPage() {
         </h1>
         {/* Add any global admin actions here */}
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Messaggio Importante per l'Admin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-destructive font-semibold">
-            Assicurati che l'email dell'amministratore (<code className="bg-muted px-1 py-0.5 rounded text-sm">{ADMIN_EMAIL}</code>) sia configurata correttamente sia in <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> che in <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code>.
-          </p>
-        </CardContent>
-      </Card>
+      
+      {/* La Card "Messaggio Importante per l'Admin" è stata rimossa */}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
