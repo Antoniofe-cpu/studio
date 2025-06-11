@@ -34,6 +34,9 @@ export function WatchCard({ deal }: WatchCardProps) {
   const [formattedListingPrice, setFormattedListingPrice] = useState<string | null>(null);
   const [formattedMarketPrice, setFormattedMarketPrice] = useState<string | null>(null);
   const [formattedRetailPrice, setFormattedRetailPrice] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+  
+  const currentImageUrl = deal.imageUrl; // Store for dependency array
 
   useEffect(() => {
     if (deal.listingPriceEUR !== undefined && deal.listingPriceEUR !== null) {
@@ -53,6 +56,11 @@ export function WatchCard({ deal }: WatchCardProps) {
     }
   }, [deal.listingPriceEUR, deal.marketPriceEUR, deal.retailPriceEUR]);
 
+  useEffect(() => {
+    setImageError(false); // Reset error state when the deal or its imageUrl changes
+  }, [deal.id, currentImageUrl]);
+
+
   if (!deal || !deal.id) return null; 
 
   const displayBrand = deal.brand || 'Unknown Brand';
@@ -64,15 +72,20 @@ export function WatchCard({ deal }: WatchCardProps) {
     <Link href={`/deals/${deal.id}`} className="block hover:shadow-xl hover:scale-[1.02] transition-all duration-200 rounded-lg">
       <Card className="h-full flex flex-col overflow-hidden shadow-lg transition-shadow duration-300 bg-card">
         <CardHeader className="p-4">
-          {deal.imageUrl ? (
+          {currentImageUrl && !imageError ? (
             <div className="aspect-[4/3] relative w-full rounded-md overflow-hidden mb-3">
               <Image
-                src={deal.imageUrl}
+                key={currentImageUrl} // Add key to help React differentiate when src changes
+                src={currentImageUrl}
                 alt={displayTitle}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 data-ai-hint="luxury watch"
+                onError={() => {
+                  console.error(`Failed to load card image: ${currentImageUrl} for deal ID: ${deal.id}`);
+                  setImageError(true);
+                }}
               />
             </div>
           ) : (
@@ -151,4 +164,3 @@ export function WatchCard({ deal }: WatchCardProps) {
     </Link>
   );
 }
-
