@@ -1,9 +1,13 @@
 
+'use client'; // Required for useRouter
+
+import { useEffect, useState } from 'react'; // useEffect and useState for client-side logic if needed in future
+import { useRouter } from 'next/navigation';
 import { getWatchDealById } from '@/lib/firebase/firestore-service';
 import type { WatchDeal } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, CalendarDays, TagIcon, DraftingCompass } from 'lucide-react';
+import { ExternalLink, Info, LineChart, Percent, ShieldAlert, ShoppingCart, Tag, Thermometer, TrendingUp, MapPin, CalendarDays, TagIcon, DraftingCompass, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -25,13 +29,33 @@ const getScoreColor = (score: number | null) => {
   return 'bg-red-500';
 };
 
-export default async function DealPage({ params }: DealPageProps) {
+export default function DealPage({ params }: DealPageProps) {
+  const router = useRouter();
   const { id } = params;
-  const deal = await getWatchDealById(id);
+  const [deal, setDeal] = useState<WatchDeal | null | undefined>(undefined); // undefined for initial loading state
+
+  useEffect(() => {
+    async function fetchDeal() {
+      const fetchedDeal = await getWatchDealById(id);
+      setDeal(fetchedDeal);
+    }
+    fetchDeal();
+  }, [id]);
+
+  if (deal === undefined) { // Loading state
+    return (
+      <main className="container mx-auto p-4 md:p-8 flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+        <p>Loading deal details...</p> {/* Or a spinner component */}
+      </main>
+    );
+  }
 
   if (!deal) {
     return (
       <main className="container mx-auto p-4 md:p-8 flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+        <Button variant="outline" onClick={() => router.back()} className="self-start mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Torna Indietro
+        </Button>
         <Alert variant="destructive" className="max-w-md text-center">
           <ShieldAlert className="h-5 w-5" />
           <AlertTitle className="text-2xl font-bold">Deal Not Found</AlertTitle>
@@ -51,6 +75,9 @@ export default async function DealPage({ params }: DealPageProps) {
 
   return (
     <main className="container mx-auto p-4 md:p-8">
+      <Button variant="outline" onClick={() => router.back()} className="mb-6 inline-flex items-center">
+        <ArrowLeft className="mr-2 h-4 w-4" /> Torna Indietro
+      </Button>
       <Card className="overflow-hidden shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
 
@@ -167,3 +194,4 @@ export default async function DealPage({ params }: DealPageProps) {
     </main>
   );
 }
+
