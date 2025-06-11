@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Users, ListChecks, BarChart, Loader2, AlertTriangle } from "lucide-react";
 
-// !!! IMPORTANTE: Sostituisci questa email con l'email del tuo utente amministratore !!!
+// !!! IMPORTANTE: Questa email DEVE corrispondere a quella dell'utente amministratore !!!
 const ADMIN_EMAIL = 'ferrara.antonio08@gmail.com';
 
 export default function AdminPage() {
@@ -69,7 +69,7 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           <p className="text-destructive font-semibold">
-            Assicurati di aver aggiornato il file <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> e <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code> con la tua email di amministratore corretta (<code className="bg-muted px-1 py-0.5 rounded text-sm">{ADMIN_EMAIL}</code>).
+            Assicurati che l'email dell'amministratore (<code className="bg-muted px-1 py-0.5 rounded text-sm">{ADMIN_EMAIL}</code>) sia configurata correttamente sia in <code className="bg-muted px-1 py-0.5 rounded text-sm">src/app/admin/page.tsx</code> che in <code className="bg-muted px-1 py-0.5 rounded text-sm">src/components/header.tsx</code>.
           </p>
         </CardContent>
       </Card>
