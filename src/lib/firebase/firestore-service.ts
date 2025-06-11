@@ -19,43 +19,52 @@ function mapDocToWatchDeal(docSnap: { id: string; data: () => any }): WatchDeal 
     lastUpdatedString = new Date().toISOString();
   }
 
-  const primaryImageUrl = data.imageUrl || 'https://placehold.co/600x450.png';
+  const primaryImageUrl = data.imageUrl || null; // Allow null if not present
   let galleryImageUrls: string[] = [];
   if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
     galleryImageUrls = data.imageUrls.filter((url: any) => typeof url === 'string');
-  } else {
+  } else if (primaryImageUrl) {
     galleryImageUrls = [primaryImageUrl];
   }
-  // Ensure primaryImageUrl is at the start of galleryImageUrls if not already
-  if (galleryImageUrls[0] !== primaryImageUrl && primaryImageUrl !== 'https://placehold.co/600x450.png') {
+  
+  if (primaryImageUrl && galleryImageUrls[0] !== primaryImageUrl) {
      if (galleryImageUrls.includes(primaryImageUrl)) {
         galleryImageUrls = [primaryImageUrl, ...galleryImageUrls.filter(url => url !== primaryImageUrl)];
      } else {
         galleryImageUrls = [primaryImageUrl, ...galleryImageUrls];
      }
   }
-   // If galleryImageUrls is still just the placeholder, and primary is different, fix it.
-  if (galleryImageUrls.length === 1 && galleryImageUrls[0] === 'https://placehold.co/600x450.png' && primaryImageUrl !== 'https://placehold.co/600x450.png') {
-    galleryImageUrls = [primaryImageUrl];
+  
+  const validDealLabels: DealLabel[] = ['🔥 Affare', '👍 OK', '❌ Fuori Prezzo'];
+  let currentDealLabel: WatchDeal['dealLabel'] = data.dealLabel || null;
+  if (currentDealLabel && !validDealLabels.includes(currentDealLabel as DealLabel)) {
+    currentDealLabel = '👍 OK'; 
   }
 
 
   const deal: WatchDeal = {
     id: docSnap.id,
+    title: data.title || `${data.brand || 'Watch'} ${data.model || ''}`.trim(),
+    brand: data.brand || null,
+    model: data.model || null,
+    referenceNumber: data.referenceNumber || null,
+    
+    listingPriceEUR: typeof data.listingPriceEUR === 'number' ? data.listingPriceEUR : (typeof data.listingPrice === 'number' ? data.listingPrice : null),
+    marketPriceEUR: typeof data.marketPriceEUR === 'number' ? data.marketPriceEUR : (typeof data.marketPrice === 'number' ? data.marketPrice : null),
+    retailPriceEUR: typeof data.retailPriceEUR === 'number' ? data.retailPriceEUR : (typeof data.retailPrice === 'number' ? data.retailPrice : null),
+
+    originalListingPrice: typeof data.originalListingPrice === 'number' ? data.originalListingPrice : null,
+    originalCurrency: data.originalCurrency || null,
+
+    estimatedMarginPercent: typeof data.estimatedMarginPercent === 'number' ? data.estimatedMarginPercent : null,
+    aiScore: typeof data.aiScore === 'number' ? data.aiScore : null,
+    dealLabel: currentDealLabel,
+    
     imageUrl: primaryImageUrl,
     imageUrls: galleryImageUrls,
-    brand: data.brand || 'Unknown Brand',
-    model: data.model || 'Unknown Model',
-    referenceNumber: data.referenceNumber || 'N/A',
-    listingPrice: typeof data.listingPrice === 'number' ? data.listingPrice : 0,
-    marketPrice: typeof data.marketPrice === 'number' ? data.marketPrice : 0,
-    retailPrice: typeof data.retailPrice === 'number' ? data.retailPrice : undefined,
-    estimatedMarginPercent: typeof data.estimatedMarginPercent === 'number' ? data.estimatedMarginPercent : 0,
-    aiScore: typeof data.aiScore === 'number' ? data.aiScore : 0,
-    dealLabel: (data.dealLabel as DealLabel) || '👍 OK',
-    tags: Array.isArray(data.tags) ? data.tags : [],
+    
     sourceUrl: data.sourceUrl || '#',
-    description: data.description || 'No description provided.',
+    description: data.description || undefined,
     condition: data.condition || undefined,
     demand: data.demand || undefined,
     rarity: data.rarity || undefined,
@@ -64,10 +73,6 @@ function mapDocToWatchDeal(docSnap: { id: string; data: () => any }): WatchDeal 
     lastUpdated: lastUpdatedString,
   };
 
-  const validDealLabels: DealLabel[] = ['🔥 Affare', '👍 OK', '❌ Fuori Prezzo'];
-  if (!validDealLabels.includes(deal.dealLabel)) {
-    deal.dealLabel = '👍 OK';
-  }
   return deal;
 }
 
@@ -78,7 +83,7 @@ export async function getWatchDealsFromFirestore(): Promise<WatchDeal[]> {
     
     console.log(`Fetching all data from '${COLLECTION_NAME}' collection.`);
     const dealsCollectionRef = collection(db, COLLECTION_NAME);
-    const q = query(dealsCollectionRef, ...queryConstraints); 
+    const q = query(dealsCollectionRef, ...queryConstraints, orderBy("lastUpdated", "desc")); 
     
     const querySnapshot = await getDocs(q);
     
@@ -117,3 +122,4 @@ export async function getWatchDealById(id: string): Promise<WatchDeal | null> {
     return null;
   }
 }
+

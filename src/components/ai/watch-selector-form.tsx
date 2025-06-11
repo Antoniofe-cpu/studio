@@ -1,3 +1,4 @@
+
 // src/components/ai/watch-selector-form.tsx
 'use client';
 
@@ -79,7 +80,7 @@ export function WatchSelectorForm() {
   useEffect(() => {
     if (selectedBrand) {
       setModelsForBrand(watchModelsByBrand[selectedBrand] || []);
-      setSelectedModel(''); // Reset model when brand changes
+      setSelectedModel(''); 
       setSearchResult(null);
     } else {
       setModelsForBrand([]);
@@ -99,40 +100,42 @@ export function WatchSelectorForm() {
     setIsLoading(true);
     setSearchResult(null);
 
-    // Simulate API call / AI processing
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     const brandName = watchBrands.find(b => b.id === selectedBrand)?.name || 'Sconosciuto';
     const modelName = modelsForBrand.find(m => m.id === selectedModel)?.name || 'Sconosciuto';
     
-    // Generate a mock WatchDeal
-    const mockListingPrice = Math.floor(Math.random() * 20000) + 5000; // e.g. 5k - 25k
-    const marketPriceVariance = (Math.random() * 0.3) - 0.15; // -15% to +15%
-    const mockMarketPrice = Math.floor(mockListingPrice * (1 + marketPriceVariance));
-    const mockRetailPrice = Math.floor(mockListingPrice * (Math.random() * 0.4 + 0.5)); // 50-90% of listing
-    const score = Math.floor(Math.random() * 40) + 60; // Score 60-99
+    const mockListingPriceEUR = Math.floor(Math.random() * 20000) + 5000;
+    const marketPriceVariance = (Math.random() * 0.3) - 0.15; 
+    const mockMarketPriceEUR = Math.floor(mockListingPriceEUR * (1 + marketPriceVariance));
+    const mockRetailPriceEUR = Math.floor(mockListingPriceEUR * (Math.random() * 0.4 + 0.5)); 
+    const score = Math.floor(Math.random() * 40) + 60; 
 
-    let dealLabel: WatchDeal['dealLabel'] = '👍 OK';
-    if (score > 85 && mockListingPrice < mockMarketPrice * 0.95) {
-      dealLabel = '🔥 Affare';
-    } else if (score < 70 || mockListingPrice > mockMarketPrice * 1.1) {
-      dealLabel = '❌ Fuori Prezzo';
+    let dealLabelText: WatchDeal['dealLabel'] = '👍 OK';
+    if (score > 85 && mockListingPriceEUR < mockMarketPriceEUR * 0.95) {
+      dealLabelText = '🔥 Affare';
+    } else if (score < 70 || mockListingPriceEUR > mockMarketPriceEUR * 1.1) {
+      dealLabelText = '❌ Fuori Prezzo';
     }
     
     const mockResultData: WatchDeal = {
       id: `search-${selectedBrand}-${selectedModel}-${Date.now()}`,
-      imageUrl: `https://placehold.co/600x450.png?text=${encodeURIComponent(brandName + ' ' + modelName)}`,
+      title: `${brandName} ${modelName} (AI Valuation)`,
       brand: brandName,
       model: modelName,
       referenceNumber: `REF-${selectedBrand.toUpperCase().slice(0,3)}${Math.floor(Math.random() * 9000) + 1000}`,
-      listingPrice: mockListingPrice,
-      marketPrice: mockMarketPrice,
-      retailPrice: mockRetailPrice,
-      estimatedMarginPercent: parseFloat((((mockMarketPrice - mockListingPrice) / mockListingPrice) * 100).toFixed(1)),
+      listingPriceEUR: mockListingPriceEUR,
+      marketPriceEUR: mockMarketPriceEUR,
+      retailPriceEUR: mockRetailPriceEUR,
+      originalListingPrice: null,
+      originalCurrency: null,
+      estimatedMarginPercent: parseFloat((((mockMarketPriceEUR - mockListingPriceEUR) / mockListingPriceEUR) * 100).toFixed(1)),
       aiScore: score,
-      dealLabel: dealLabel,
+      dealLabel: dealLabelText,
       tags: ['#ValutazioneAI', `#${brandName.replace(/\s+/g, '')}`],
-      sourceUrl: '#', // Placeholder
+      imageUrl: 'https://placehold.co/600x450.png',
+      imageUrls: ['https://placehold.co/600x450.png'],
+      sourceUrl: '#', 
       description: `Valutazione AI generata per ${brandName} ${modelName}. Dati simulati.`,
       condition: 'Variabile',
       demand: 'Media',
@@ -141,17 +144,6 @@ export function WatchSelectorForm() {
       lastUpdated: new Date().toISOString(),
     };
     
-    // Add data-ai-hint to the imageUrl within the component if WatchCard doesn't handle it,
-    // or ensure WatchCard handles it. Here, we assume WatchCard handles it for its own image.
-    // For this mock, WatchCard will use its default data-ai-hint.
-    // If specific hint is needed, it should be passed to WatchCard or WatchCard modified.
-    // The placeholder URL is updated to include text for better visual feedback during mock.
-    // However, for production, it should be `https://placehold.co/600x450.png` and rely on `data-ai-hint`.
-    // For now, let's keep the text in placeholder for dev feedback but remember to remove it.
-    // For the actual task: ensure the image in WatchCard has a generic hint if not specific one.
-
-    mockResultData.imageUrl = 'https://placehold.co/600x450.png'; // Correct placeholder for AI hint
-
     setSearchResult(mockResultData);
     setIsLoading(false);
      toast({
@@ -209,6 +201,7 @@ export function WatchSelectorForm() {
         <CardContent className="mt-6 border-t pt-6">
           <h3 className="text-xl font-semibold mb-4 text-primary">Risultato Valutazione:</h3>
           <div className="max-w-md mx-auto">
+            {/* Ensure WatchCard is using data-ai-hint if needed for its image */}
             <WatchCard deal={searchResult} />
           </div>
         </CardContent>

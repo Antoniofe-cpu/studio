@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link'; // Importa il Link
-import type { WatchDeal } from '@/lib/types';
+import Link from 'next/link'; 
+import type { WatchDeal, DealLabel } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,8 @@ const DealLabelIcon = ({ label }: { label: WatchDeal['dealLabel'] }) => {
   return null;
 };
 
-const getScoreColor = (score: number) => {
+const getScoreColor = (score: number | null) => {
+  if (score === null) return 'bg-muted';
   if (score >= 80) return 'bg-green-500';
   if (score >= 60) return 'bg-yellow-500';
   return 'bg-red-500';
@@ -35,20 +36,29 @@ export function WatchCard({ deal }: WatchCardProps) {
   const [formattedRetailPrice, setFormattedRetailPrice] = useState<string | null>(null);
 
   useEffect(() => {
-    if (deal.listingPrice !== undefined && deal.listingPrice !== null) {
-      setFormattedListingPrice(deal.listingPrice.toLocaleString());
+    if (deal.listingPriceEUR !== undefined && deal.listingPriceEUR !== null) {
+      setFormattedListingPrice(deal.listingPriceEUR.toLocaleString());
+    } else {
+      setFormattedListingPrice(null);
     }
-    if (deal.marketPrice !== undefined && deal.marketPrice !== null) {
-      setFormattedMarketPrice(deal.marketPrice.toLocaleString());
+    if (deal.marketPriceEUR !== undefined && deal.marketPriceEUR !== null) {
+      setFormattedMarketPrice(deal.marketPriceEUR.toLocaleString());
+    } else {
+      setFormattedMarketPrice(null);
     }
-    if (deal.retailPrice !== undefined && deal.retailPrice !== null) {
-      setFormattedRetailPrice(deal.retailPrice.toLocaleString());
+    if (deal.retailPriceEUR !== undefined && deal.retailPriceEUR !== null) {
+      setFormattedRetailPrice(deal.retailPriceEUR.toLocaleString());
     } else {
       setFormattedRetailPrice(null);
     }
-  }, [deal.listingPrice, deal.marketPrice, deal.retailPrice]);
+  }, [deal.listingPriceEUR, deal.marketPriceEUR, deal.retailPriceEUR]);
 
-  if (!deal || !deal.id) return null; // Controllo di sicurezza
+  if (!deal || !deal.id) return null; 
+
+  const displayBrand = deal.brand || 'Unknown Brand';
+  const displayModel = deal.model || 'Unknown Model';
+  const displayReference = deal.referenceNumber || 'N/A';
+  const displayTitle = deal.title || `${displayBrand} ${displayModel}`.trim();
 
   return (
     <Link href={`/deals/${deal.id}`} className="block hover:shadow-xl hover:scale-[1.02] transition-all duration-200 rounded-lg">
@@ -58,7 +68,7 @@ export function WatchCard({ deal }: WatchCardProps) {
             <div className="aspect-[4/3] relative w-full rounded-md overflow-hidden mb-3">
               <Image
                 src={deal.imageUrl}
-                alt={`${deal.brand} ${deal.model}`}
+                alt={displayTitle}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -70,29 +80,29 @@ export function WatchCard({ deal }: WatchCardProps) {
               <TagIcon className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
-          <CardTitle className="text-lg font-headline truncate" title={`${deal.brand} ${deal.model}`}>
-            {deal.brand} - {deal.model}
+          <CardTitle className="text-lg font-headline truncate" title={displayTitle}>
+            {displayTitle}
           </CardTitle>
-          <CardDescription className="text-sm text-muted-foreground">{deal.referenceNumber}</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">{displayReference}</CardDescription>
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-3 text-sm flex-grow">
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Prezzo Annuncio:</span>
             <span className="font-semibold text-primary">
-              €{formattedListingPrice !== null ? formattedListingPrice : (deal.listingPrice !== undefined && deal.listingPrice !== null ? deal.listingPrice.toString() : 'N/A')}
+              €{formattedListingPrice !== null ? formattedListingPrice : 'N/A'}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Valore di Mercato:</span>
             <span className="font-semibold">
-              €{formattedMarketPrice !== null ? formattedMarketPrice : (deal.marketPrice !== undefined && deal.marketPrice !== null ? deal.marketPrice.toString() : 'N/A')}
+              €{formattedMarketPrice !== null ? formattedMarketPrice : 'N/A'}
             </span>
           </div>
-          {deal.retailPrice !== undefined && deal.retailPrice !== null && (
+          {deal.retailPriceEUR !== undefined && deal.retailPriceEUR !== null && (
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Prezzo Listino (Nuovo):</span>
               <span className="font-semibold">
-                €{formattedRetailPrice !== null ? formattedRetailPrice : deal.retailPrice.toString()}
+                €{formattedRetailPrice !== null ? formattedRetailPrice : 'N/A'}
               </span>
             </div>
           )}
@@ -100,24 +110,26 @@ export function WatchCard({ deal }: WatchCardProps) {
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><TrendingUp className="w-4 h-4 mr-1.5" /> AI Score:</span>
-              <span className="font-bold text-lg">{deal.aiScore !== undefined && deal.aiScore !== null ? deal.aiScore : 'N/A'}/100</span>
+              <span className="font-bold text-lg">{deal.aiScore !== null ? deal.aiScore : 'N/A'}/100</span>
             </div>
-            <Progress value={deal.aiScore || 0} className="h-2" indicatorClassName={getScoreColor(deal.aiScore || 0)} />
+            <Progress value={deal.aiScore || 0} className="h-2" indicatorClassName={getScoreColor(deal.aiScore)} />
           </div>
 
           <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><Percent className="w-4 h-4 mr-1.5" /> Margin:</span>
-              <Badge variant={deal.estimatedMarginPercent > 10 ? 'default' : 'secondary'} className={`${deal.estimatedMarginPercent > 10 ? 'bg-green-600/80 hover:bg-green-600' : 'bg-yellow-600/80 hover:bg-yellow-600'} text-primary-foreground`}>
-                {deal.estimatedMarginPercent !== undefined && deal.estimatedMarginPercent !== null ? deal.estimatedMarginPercent.toFixed(1) : 'N/A'}%
+              <Badge variant={deal.estimatedMarginPercent !== null && deal.estimatedMarginPercent > 10 ? 'default' : 'secondary'} className={`${deal.estimatedMarginPercent !== null && deal.estimatedMarginPercent > 10 ? 'bg-green-600/80 hover:bg-green-600' : 'bg-yellow-600/80 hover:bg-yellow-600'} text-primary-foreground`}>
+                {deal.estimatedMarginPercent !== null ? deal.estimatedMarginPercent.toFixed(1) : 'N/A'}%
               </Badge>
           </div>
           
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center"><BarChartBig className="w-4 h-4 mr-1.5" /> Deal:</span>
-            <Badge variant="outline" className="flex items-center">
-              <DealLabelIcon label={deal.dealLabel} /> {deal.dealLabel}
-            </Badge>
-          </div>
+          {deal.dealLabel && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground flex items-center"><BarChartBig className="w-4 h-4 mr-1.5" /> Deal:</span>
+              <Badge variant="outline" className="flex items-center">
+                <DealLabelIcon label={deal.dealLabel as DealLabel} /> {deal.dealLabel}
+              </Badge>
+            </div>
+          )}
 
           {deal.tags && deal.tags.length > 0 && (
             <div className="pt-1">
@@ -139,3 +151,4 @@ export function WatchCard({ deal }: WatchCardProps) {
     </Link>
   );
 }
+
