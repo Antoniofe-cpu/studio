@@ -1,0 +1,9 @@
+requests
+firebase-admin
+google-api-python-client
+serpapi
+beautifulsoup4
+lxml
+playwright
+playwright-stealth
+statistics
