@@ -81,14 +81,10 @@ def scrape_forum_with_playwright(url, source_name, selectors):
     return deals
 
 def scrape_all_forums():
-    forum_configs = {
-        "OmegaForums": {
-            "url": "https://omegaforums.net/forums/private-watch-sales/",
-            "selectors": {"thread_container": "div.oxcart-thread-stack", "title_element": "h3.oxcart-thread-title--main > a", "price_element": "div.price", "post_content_selector": "div.message-content", "image_selector": "img.bbImage"},
-        }
-    }
-    all_forum_deals = []
-    for name, config in forum_configs.items():
-        deals = scrape_forum_with_playwright(config['url'], name, config['selectors'])
-        all_forum_deals.extend(deals)
-    return all_forum_deals
+    """
+    Funzione stub. Lo scraping dei forum è stato disabilitato
+    a causa di protezioni anti-bot avanzate.
+    Restituisce una lista vuota.
+    """
+    print("  -> ⚠️  [Forum] Lo scraping dei forum è disabilitato.")
+    return []

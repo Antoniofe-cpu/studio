@@ -1,3 +1,4 @@
+# Contenuto FINALE e SICURO per: parsers/ebay_analyzer.py
 import requests
 import statistics
 
@@ -8,7 +9,10 @@ class EbayAnalyzer:
         self.api_endpoint = "https://svcs.ebay.com/services/search/FindingService/v1"
 
     def calculate_market_price(self, query):
-        if not self.client_id or "LA_TUA_CHIAVE" in self.client_id:
+        # --- CONTROLLO DI SICUREZZA AGGIUNTO ---
+        # Se il Client ID non è stato caricato, non fare nulla.
+        if not self.client_id or "LA_TUA_CHIAVE" in str(self.client_id):
+            # Non stampiamo nulla per non intasare il log, semplicemente non procediamo.
             return None
         
         print(f"      -> 📈 [eBay] Ricerca prezzo di mercato per: '{query[:40]}...'")
@@ -23,14 +27,16 @@ class EbayAnalyzer:
             response = requests.get(self.api_endpoint, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
-            if data.get('findCompletedItemsResponse', [{}])[0].get('ack', ['Failure'])[0] != 'Success': return None
+            if data.get('findCompletedItemsResponse', [{}])[0].get('ack', ['Failure'])[0] != 'Success':
+                print(f"      -> ⚠️ [eBay] Risposta API non valida: {data.get('findCompletedItemsResponse', [{}])[0].get('errorMessage', [{}])[0].get('error', [{}])[0].get('message', ['Sconosciuto'])[0]}")
+                return None
             items = data['findCompletedItemsResponse'][0].get('searchResult', [{}])[0].get('item', [])
             if not items: return None
             prices = [float(item['sellingStatus'][0]['currentPrice'][0]['__value__']) for item in items if item.get('sellingStatus', [{}])[0].get('sellingState', [''])[0] == 'Sold']
-            if len(prices) < 3: return None
+            if len(prices) < 2: return None # Bastano 2 risultati per una mediana
             market_price = int(statistics.median(prices))
             print(f"      -> ✅ [eBay] Prezzo di mercato stimato (mediana su {len(prices)} venduti): €{market_price}")
             return market_price
         except Exception as e:
-            print(f"      -> ❌ [eBay] Errore API: {e}")
+            print(f"      -> ❌ [eBay] Errore chiamata API: {e}")
             return None

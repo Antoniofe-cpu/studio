@@ -43,3 +43,7 @@ secrets.txt
 =======
 >>>>>>> 753921a (feat: Update data models and parsers, fix GitHub Actions command)
 >>>>>>> 933910c
+local_config.py
+.env
+local_config.py
+.env

@@ -1,5 +1,13 @@
+# Contenuto FINALE e FORZATO per: docker-compose.yml
 services:
   scraper:
     build: .
     volumes:
       - .:/app
+    environment:
+      # Incolliamo qui le chiavi per i test locali.
+      # Docker Compose le leggerà e le passerà al container.
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${FIREBASE_SERVICE_ACCOUNT_JSON}
+      SCRAPINGBEE_API_KEY: YHQF2FB5VHUQA10D60AWKCXREM5ISBU0UHSKF384KT6IJ3ZCL2E4K1P7TE4LL9GIK09KNM4XS3SEO10N
+      EBAY_CLIENT_ID: FerraraA-watch-PRD-e4735744e-2dc03c62
+      GROQ_API_KEY: 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

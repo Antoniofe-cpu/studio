@@ -1,73 +1,84 @@
-# Contenuto FINALE e AGGIORNATO per: orchestrator.py
-import os
-import json
-import time
-import firebase_admin
+# Contenuto FINALE e DI PRODUZIONE per: orchestrator.py
+import os, json, time, firebase_admin, base64, re
 from firebase_admin import credentials, firestore
-import base64
-
 from parsers.reddit_parser import fetch_reddit_deals
 from parsers.forum_parser import scrape_all_forums
+from parsers.ebay_listings_parser import fetch_ebay_listings
 from parsers.ebay_analyzer import EbayAnalyzer
 from parsers.google_shopping_analyzer import GoogleShoppingAnalyzer
-from parsers.ai_analyzer import GroqAnalyzer # <-- NUOVO
+from parsers.ai_analyzer import GroqAnalyzer
 from utils.data_models import standardize_deal, calculate_margin
 
-# --- CONFIGURAZIONE E INIZIALIZZAZIONE (invariata) ---
-# ... (tutta la parte di configurazione delle chiavi e init di firebase rimane uguale) ...
+# --- CONFIGURAZIONE ---
 COLLECTION_NAME = "deals_production"
 try:
+    # Carica TUTTE le credenziali dalle variabili d'ambiente (metodo per produzione)
     SERVICE_ACCOUNT_B64 = os.environ['FIREBASE_SERVICE_ACCOUNT_JSON']
-    SERVICE_ACCOUNT_JSON = json.loads(base64.b64decode(SERVICE_ACCOUNT_B64))
-    CRED = credentials.Certificate(SERVICE_ACCOUNT_JSON)
-except KeyError:
-    SERVICE_ACCOUNT_JSON_PATH = "serviceAccountKey.json"
-    CRED = credentials.Certificate(SERVICE_ACCOUNT_JSON_PATH)
-
-SERPAPI_API_KEY = os.environ.get('SERPAPI_API_KEY')
-EBAY_CLIENT_ID = os.environ.get('EBAY_CLIENT_ID')
-GROQ_API_KEY = os.environ.get('GROQ_API_KEY') # <-- NUOVA CHIAVE
+    SERVICE_ACCOUNT_JSON_STR = base64.b64decode(SERVICE_ACCOUNT_B64).decode('utf-8')
+    SERVICE_ACCOUNT_DICT = json.loads(SERVICE_ACCOUNT_JSON_STR)
+    CRED = credentials.Certificate(SERVICE_ACCOUNT_DICT)
+    
+    SCRAPINGBEE_API_KEY = os.environ.get('SCRAPINGBEE_API_KEY')
+    EBAY_CLIENT_ID = os.environ.get('EBAY_CLIENT_ID')
+    GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
+except KeyError as e:
+    print(f"❌ ERRORE CRITICO: La variabile d'ambiente di produzione {e} non è stata impostata.")
+    exit()
 
 def initialize_firebase():
     if not firebase_admin._apps:
-        firebase_admin.initialize_app(CRED); print("🔑 Firebase Admin SDK inizializzato.")
+        firebase_admin.initialize_app(CRED)
+        print("🔑 Firebase Admin SDK inizializzato.")
     return firestore.client()
 
 def run_full_etl(db):
-    print("\n🚀 Inizio processo ETL multi-fonte...")
+    print("\n🚀 Inizio processo ETL...")
     ebay_analyzer = EbayAnalyzer(EBAY_CLIENT_ID)
-    gshopping_analyzer = GoogleShoppingAnalyzer(SERPAPI_API_KEY)
-    groq_analyzer = GroqAnalyzer(GROQ_API_KEY) # <-- INIZIALIZZA L'AI
+    gshopping_analyzer = GoogleShoppingAnalyzer(SCRAPINGBEE_API_KEY)
+    groq_analyzer = GroqAnalyzer(GROQ_API_KEY)
     
-    # --- FASE 1: ESTRAZIONE ---
-    all_deals_raw = []; all_deals_raw.extend(fetch_reddit_deals()); all_deals_raw.extend(scrape_all_forums())
+    # --- ESTRAZIONE ---
+    all_deals_raw = []
+    all_deals_raw.extend(fetch_reddit_deals())
+    all_deals_raw.extend(fetch_ebay_listings(EBAY_CLIENT_ID))
+    all_deals_raw.extend(scrape_all_forums())
     print(f"\n✅ Recuperati {len(all_deals_raw)} annunci grezzi.")
     
-    # --- FASE 2: TRASFORMAZIONE & ARRICCHIMENTO ---
+    # --- TRASFORMAZIONE E ARRICCHIMENTO ---
     deals_to_upload = []
     print("\n📊 Processamento e arricchimento annunci...")
     for raw_deal in all_deals_raw:
         deal = standardize_deal(raw_deal)
         if deal:
-            query = f"{deal['brand']} {deal['model']} {deal['referenceNumber']}".replace("Unknown", "").replace("N/A", "").strip()
-            if query:
-                deal['marketPrice'] = ebay_analyzer.calculate_market_price(query)
+            brand = deal.get('brand')
+            ref = deal.get('referenceNumber')
+            
+            clean_query = None
+            if brand and brand != 'Unknown':
+                query_parts = [brand]
+                if ref and ref != 'N/A':
+                    query_parts.append(ref)
+                clean_query = " ".join(query_parts)
+
+            if clean_query:
+                print(f"    -> Analisi per '{deal['title'][:30]}...'. Query: '{clean_query}'")
+                deal['marketPrice'] = ebay_analyzer.calculate_market_price(clean_query)
                 time.sleep(1)
-                deal['retailPrice'] = gshopping_analyzer.find_grey_market_price(query)
+                deal['retailPrice'] = gshopping_analyzer.find_grey_market_price(clean_query)
                 time.sleep(1)
                 deal['estimatedMarginPercent'] = calculate_margin(deal['listingPrice'], deal['marketPrice'])
-                
-                # --- CHIAMATA ALLA NUOVA AI ---
-                ai_score, ai_rationale = groq_analyzer.generate_ai_score(deal)
-                deal['aiScore'] = ai_score
-                deal['aiRationale'] = ai_rationale # Aggiungiamo la motivazione!
-                time.sleep(1.5) # Pausa per l'API di Groq
-
+                if deal.get('listingPrice') and deal.get('marketPrice'):
+                    ai_score, ai_rationale = groq_analyzer.generate_ai_score(deal)
+                    deal['aiScore'] = ai_score
+                    deal['aiRationale'] = ai_rationale
+                    time.sleep(1)
+            else:
+                print(f"    -> ⚠️ Annuncio '{deal.get('originalTitle', 'Sconosciuto')[:30]}...' saltato.")
             deals_to_upload.append(deal)
 
     print(f"    -> Processati {len(deals_to_upload)} annunci validi.")
-
-    # --- FASE 3: CARICAMENTO ---
+    
+    # --- CARICAMENTO ---
     if not deals_to_upload: print("\nNessun nuovo annuncio da caricare."); return
     print(f"\n📤 Caricamento di {len(deals_to_upload)} affari su Firestore...")
     batch = db.batch()

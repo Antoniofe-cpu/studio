@@ -7,3 +7,4 @@ lxml
 playwright
 playwright-stealth
 statistics
+groq
