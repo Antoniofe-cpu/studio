@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import type { WatchDeal, DealLabel } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +35,7 @@ export function WatchCard({ deal }: WatchCardProps) {
   const [formattedMarketPrice, setFormattedMarketPrice] = useState<string | null>(null);
   const [formattedRetailPrice, setFormattedRetailPrice] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
-  
+
   const currentImageUrl = deal.imageUrl; // Store for dependency array
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function WatchCard({ deal }: WatchCardProps) {
   }, [deal.id, currentImageUrl]);
 
 
-  if (!deal || !deal.id) return null; 
+  if (!deal || !deal.id) return null;
 
   const displayBrand = deal.brand || 'Unknown Brand';
   const displayModel = deal.model || 'Unknown Model';
@@ -73,13 +73,13 @@ export function WatchCard({ deal }: WatchCardProps) {
       <Card className="h-full flex flex-col overflow-hidden shadow-lg transition-shadow duration-300 bg-card">
         <CardHeader className="p-4">
           {currentImageUrl && !imageError ? (
-            <div className="aspect-[4/3] relative w-full rounded-md overflow-hidden mb-3">
+            <div className="relative w-full h-[200px] rounded-md overflow-hidden mb-3">
               <Image
                 key={currentImageUrl} // Add key to help React differentiate when src changes
                 src={currentImageUrl}
                 alt={displayTitle}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 data-ai-hint="luxury watch"
                 onError={() => {
@@ -89,7 +89,7 @@ export function WatchCard({ deal }: WatchCardProps) {
               />
             </div>
           ) : (
-             <div className="aspect-[4/3] w-full rounded-md bg-muted flex items-center justify-center mb-3">
+             <div className="w-full h-[200px] rounded-md bg-muted flex items-center justify-center mb-3">
               <TagIcon className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
@@ -119,7 +119,7 @@ export function WatchCard({ deal }: WatchCardProps) {
               </span>
             </div>
           )}
-          
+
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><TrendingUp className="w-4 h-4 mr-1.5" /> AI Score:</span>
@@ -134,7 +134,7 @@ export function WatchCard({ deal }: WatchCardProps) {
                 {deal.estimatedMarginPercent !== null ? deal.estimatedMarginPercent.toFixed(1) : 'N/A'}%
               </Badge>
           </div>
-          
+
           {deal.dealLabel && (
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground flex items-center"><BarChartBig className="w-4 h-4 mr-1.5" /> Deal:</span>
