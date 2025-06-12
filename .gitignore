@@ -1,3 +1,4 @@
+cat <<EOF > .gitignore
 # File di configurazione locali e chiavi
 serviceAccountKey.json
 gcp_vision_credentials.json
@@ -16,4 +17,12 @@ __pycache__/
 # File di debug generati da Playwright
 debug_*.png
 debug_*.html
+
+# Dipendenze Node.js
 node_modules
+
+# File di sistema macOS e segreti personali
+.DS_Store
+secret.txt
+secrets.txt
+EOF
