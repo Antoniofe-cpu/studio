@@ -17,6 +17,7 @@ __pycache__/
 # File di debug generati da Playwright
 debug_*.png
 debug_*.html
+<<<<<<< HEAD
 
 # Dipendenze Node.js
 node_modules
@@ -26,3 +27,12 @@ node_modules
 secret.txt
 secrets.txt
 EOF
+=======
+<<<<<<< HEAD
+node_modules
+=======
+.DS_Store
+secret.txt
+secrets.txt
+>>>>>>> ecd78b2 (feat: Update data models and parsers, fix GitHub Actions command)
+>>>>>>> 753921a (feat: Update data models and parsers, fix GitHub Actions command)
