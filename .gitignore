@@ -16,3 +16,4 @@ __pycache__/
 # File di debug generati da Playwright
 debug_*.png
 debug_*.html
+node_modules
