@@ -16,4 +16,10 @@ __pycache__/
 # File di debug generati da Playwright
 debug_*.png
 debug_*.html
+<<<<<<< HEAD
 node_modules
+=======
+.DS_Store
+secret.txt
+secrets.txt
+>>>>>>> ecd78b2 (feat: Update data models and parsers, fix GitHub Actions command)
