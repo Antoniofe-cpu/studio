@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Contenuto per: orchestrator.py
+=======
+# Contenuto FINALE per: orchestrator.py
+>>>>>>> 933910c
 import os
 import json
 import time
@@ -8,21 +12,19 @@ import base64
 
 # Importa i parser e le utility
 from parsers.reddit_parser import fetch_reddit_deals
-from parsers.serpapi_parser import fetch_google_shopping_deals
 from parsers.forum_parser import scrape_all_forums
 from parsers.ebay_analyzer import EbayAnalyzer
+from parsers.google_shopping_analyzer import GoogleShoppingAnalyzer # <-- NUOVO
 from utils.data_models import standardize_deal, calculate_margin, calculate_ai_score
 
 # --- CONFIGURAZIONE ---
 COLLECTION_NAME = "deals_production"
 
-# Carica le chiavi dagli environment variables (per GitHub Actions)
 try:
     SERVICE_ACCOUNT_B64 = os.environ['FIREBASE_SERVICE_ACCOUNT_JSON']
     SERVICE_ACCOUNT_JSON = json.loads(base64.b64decode(SERVICE_ACCOUNT_B64))
     CRED = credentials.Certificate(SERVICE_ACCOUNT_JSON)
 except KeyError:
-    # Fallback per l'esecuzione locale
     SERVICE_ACCOUNT_JSON_PATH = "serviceAccountKey.json"
     CRED = credentials.Certificate(SERVICE_ACCOUNT_JSON_PATH)
 
@@ -39,12 +41,13 @@ def initialize_firebase():
 def run_full_etl(db):
     """Esegue l'intero processo di Estrazione, Trasformazione e Caricamento."""
     print("\n🚀 Inizio processo ETL multi-fonte...")
+    # Inizializza tutti gli analizzatori
     ebay_analyzer = EbayAnalyzer(EBAY_CLIENT_ID)
+    gshopping_analyzer = GoogleShoppingAnalyzer(SERPAPI_API_KEY)
     
     # --- FASE 1: ESTRAZIONE (EXTRACT) ---
     all_deals_raw = []
     all_deals_raw.extend(fetch_reddit_deals())
-    all_deals_raw.extend(fetch_google_shopping_deals(SERPAPI_API_KEY))
     all_deals_raw.extend(scrape_all_forums())
     
     print(f"\n✅ Recuperati {len(all_deals_raw)} annunci grezzi.")
@@ -58,7 +61,9 @@ def run_full_etl(db):
             # Arricchimento con dati di mercato
             query = f"{deal['brand']} {deal['model']} {deal['referenceNumber']}".replace("Unknown", "").replace("N/A", "").strip()
             if query:
+                # Arricchimento #1: Valore di Mercato da eBay
                 deal['marketPrice'] = ebay_analyzer.calculate_market_price(query)
+<<<<<<< HEAD
                 
                 # Arricchimento con calcoli di business logic
                 deal['estimatedMarginPercent'] = calculate_margin(deal['listingPrice'], deal['marketPrice'])
@@ -66,15 +71,30 @@ def run_full_etl(db):
                 
                 # Pausa per non sovraccaricare l'API di eBay
                 time.sleep(1.2)
+=======
+                time.sleep(1) # Pausa tra le chiamate API
+                
+                # Arricchimento #2: Prezzo Retail/Grigio da Google Shopping
+                deal['retailPrice'] = gshopping_analyzer.find_grey_market_price(query)
+                time.sleep(1) # Pausa tra le chiamate API
+
+                # Arricchimento #3: Calcoli di Business Logic
+                deal['estimatedMarginPercent'] = calculate_margin(deal['listingPrice'], deal['marketPrice'])
+                deal['aiScore'] = calculate_ai_score(deal)
+>>>>>>> 933910c
             
             deals_to_upload.append(deal)
 
     print(f"    -> Processati {len(deals_to_upload)} annunci validi.")
 
     # --- FASE 3: CARICAMENTO (LOAD) ---
+<<<<<<< HEAD
     if not deals_to_upload:
         print("\nNessun nuovo annuncio da caricare.")
         return
+=======
+    if not deals_to_upload: print("\nNessun nuovo annuncio da caricare."); return
+>>>>>>> 933910c
     
     print(f"\n📤 Caricamento di {len(deals_to_upload)} affari su Firestore...")
     batch = db.batch()
