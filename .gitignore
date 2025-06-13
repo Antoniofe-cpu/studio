@@ -1,0 +1,49 @@
+cat <<EOF > .gitignore
+# File di configurazione locali e chiavi
+serviceAccountKey.json
+gcp_vision_credentials.json
+
+# Ambiente virtuale e dipendenze
+venv/
+*.venv
+.env
+
+# Cache di Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# File di debug generati da Playwright
+debug_*.png
+debug_*.html
+<<<<<<< HEAD
+<<<<<<< HEAD
+node_modules
+=======
+
+# Dipendenze Node.js
+node_modules
+
+# File di sistema macOS e segreti personali
+.DS_Store
+secret.txt
+secrets.txt
+EOF
+=======
+<<<<<<< HEAD
+node_modules
+>>>>>>> 933910c
+=======
+.DS_Store
+secret.txt
+secrets.txt
+>>>>>>> ecd78b2 (feat: Update data models and parsers, fix GitHub Actions command)
+<<<<<<< HEAD
+=======
+>>>>>>> 753921a (feat: Update data models and parsers, fix GitHub Actions command)
+>>>>>>> 933910c
+local_config.py
+.env
+local_config.py
+.env

@@ -1,0 +1,11 @@
+firebase-admin
+requests
+beautifulsoup4
+lxml
+groq
+python-dotenv
+playwright
+playwright-stealth
+statistics
+
+groq

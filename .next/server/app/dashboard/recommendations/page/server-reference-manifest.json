@@ -1,0 +1,16 @@
+{
+  "node": {
+    "40766e63aab0b3b19e65ce7633ffff634e0a494a69": {
+      "workers": {
+        "app/dashboard/recommendations/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/recommendations/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/ai-recommendations.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/recommendations/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}

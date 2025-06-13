@@ -1,0 +1,26 @@
+# Contenuto per: .github/workflows/run_scraper.yml
+
+name: Run Watch Scraper ETL
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0,16 * * *'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and Run Scraper with Docker Compose
+        # Usiamo la sintassi moderna 'docker compose' (senza trattino)
+        run: |
+          docker compose build
+          
+          docker compose run --rm \
+            -e FIREBASE_SERVICE_ACCOUNT_JSON="${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}" \
+            -e SERPAPI_API_KEY="${{ secrets.SERPAPI_API_KEY }}" \
+            -e EBAY_CLIENT_ID="${{ secrets.EBAY_CLIENT_ID }}" \
+            scraper
